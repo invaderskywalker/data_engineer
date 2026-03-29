@@ -8,11 +8,11 @@ from dotenv import load_dotenv
 # Load .env
 load_dotenv()
 
-# ✅ IMPORT YOUR MODELS
+# ✅ IMPORT BASE + MODELS (VERY IMPORTANT)
 from src.database.models.base import Base
-from src.database.models import core_models  # IMPORTANT: registers models
+from src.database.models import core  # ensures models are registered
 
-# ✅ THIS IS REQUIRED FOR AUTOGENERATE
+# ✅ REQUIRED FOR AUTOGENERATE
 target_metadata = Base.metadata
 
 
@@ -24,7 +24,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-# ✅ FIXED DB URL (supports no password)
+# ✅ FIXED DB URL (handles empty password)
 def get_url() -> str:
     host = os.getenv("DB_HOST", "localhost")
     port = os.getenv("DB_PORT", "5432")
@@ -35,6 +35,7 @@ def get_url() -> str:
     if not name or not user:
         raise ValueError("Missing required DB env vars: DB_NAME, DB_USER")
 
+    # handle local DB without password
     if password:
         return f"postgresql://{user}:{password}@{host}:{port}/{name}"
     else:
@@ -42,10 +43,12 @@ def get_url() -> str:
 
 
 def run_migrations_offline() -> None:
+    """Run migrations without DB connection"""
     url = get_url()
+
     context.configure(
         url=url,
-        target_metadata=target_metadata,   # ✅ ADDED
+        target_metadata=target_metadata,   # ✅ REQUIRED
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
@@ -56,6 +59,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    """Run migrations with live DB"""
     cfg = config.get_section(config.config_ini_section, {})
     cfg["sqlalchemy.url"] = get_url()
 
@@ -68,7 +72,7 @@ def run_migrations_online() -> None:
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata,   # ✅ ADDED
+            target_metadata=target_metadata,   # ✅ REQUIRED
             compare_type=True,
         )
 

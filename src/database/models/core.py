@@ -57,21 +57,6 @@ class TangoState(Base):
     created_date = Column(DateTime(timezone=True), server_default=func.now())
 
 
-# =========================
-# Conversations
-# =========================
-class TangoConversation(Base):
-    __tablename__ = "tango_tangoconversations"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    session_id = Column(Text, nullable=False)
-    tenant_id = Column(Integer, nullable=False)
-    user_id = Column(Integer, nullable=False)
-    role = Column(Text, nullable=False)
-    message = Column(Text)
-    metadata = Column(JSONB)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
 
 # =========================
 # Chat Titles
@@ -121,4 +106,3 @@ class TangoActivityLog(Base):
     output_data = Column(JSONB)
     status = Column(Text, default="completed")
     created_date = Column(DateTime(timezone=True), server_default=func.now())
-    
