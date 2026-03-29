@@ -23,3 +23,6 @@ tigergraph-4.2.0-community-docker-image.tar*
 gsql_client*
 .cache
 onprem_jira_projects_custom_fields/*
+
+
+.DS_Store

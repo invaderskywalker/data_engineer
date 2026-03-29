@@ -7,33 +7,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
-    cmake \
     curl \
-    autoconf \
     libpq-dev \
     python3-venv \
     cron \
     supervisor \
-    libmupdf-dev \
-    mupdf-tools \
-    tesseract-ocr \
-    libtesseract-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create venv (changes rarely → stays cached)
+# Create venv
 RUN python3 -m venv /app/venv
 
 # Install Python deps BEFORE copying code
-# This layer is only rebuilt when requirements files change
+# This layer only rebuilds when requirements change, not on code changes
 COPY requirements/base.txt requirements/base.txt
 COPY requirements/dev.txt requirements/dev.txt
 
 RUN . /app/venv/bin/activate && \
     pip install --no-cache-dir -r requirements/base.txt && \
     pip install --no-cache-dir -r requirements/dev.txt
-
-# Download spaCy model (sm = ~50MB vs lg = ~750MB)
-RUN . /app/venv/bin/activate && python -m spacy download en_core_web_sm
 
 # Copy application code last — only this layer rebuilds on code changes
 COPY . /app
