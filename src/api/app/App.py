@@ -1,27 +1,13 @@
 from flask import Flask, request, g
 # from flask_socketio import SocketIO
 # from src.trmeric_services.provider.Routes import providerBP
-from src.routes.idea_pad import ideaBP
 from src.database.Database import db_instance
 from flask_cors import CORS
 from src.api.middleware.request_logging import RequestLoggingMiddleware
-from src.routes.discovery import discoveryQA
-from src.routes.qna import qnaRoute
-from src.routes.insight import insightRoute
-from src.routes.integration import integrationRoute
-from src.routes.tango import tangoRoutes
-from src.routes.project import projectRoutesBP
-from src.routes.cron import cronBP
-from src.routes.roadmap import roadmapRoutesBP
 from src.ws.events import init_websocket_events
-from src.routes.agents import trmericAIRoute
-from src.routes.provider import providerBP
-from src.routes.internal import internalRoutes
-from src.routes.graphql import graphQlRoutes
-from src.routes.pinboard import pinBoardRoute
-from src.routes.potential import potentialRoute
 from src.routes.super_agent import superAgentAIRoute
 from src.routes.health import healthRoute
+from src.routes.data_engineer import dataEngineerRoute
 
 from src.utils.socketio_init import SocketInitializer
 
@@ -32,23 +18,9 @@ import eventlet
 eventlet.monkey_patch()
 
 def init_routes(app: Flask):
-    app.register_blueprint(providerBP)
-    app.register_blueprint(discoveryQA)
-    app.register_blueprint(ideaBP)
-    app.register_blueprint(qnaRoute)
-    app.register_blueprint(insightRoute)
-    app.register_blueprint(integrationRoute)
-    app.register_blueprint(tangoRoutes)
-    app.register_blueprint(projectRoutesBP)
-    app.register_blueprint(cronBP)
-    app.register_blueprint(roadmapRoutesBP)
-    app.register_blueprint(trmericAIRoute)
-    app.register_blueprint(internalRoutes)
-    app.register_blueprint(pinBoardRoute)
-    app.register_blueprint(potentialRoute)
-    app.register_blueprint(graphQlRoutes)
     app.register_blueprint(superAgentAIRoute)
     app.register_blueprint(healthRoute)
+    app.register_blueprint(dataEngineerRoute)
 
 
 # socketio = SocketIO(cors_allowed_origins="*")

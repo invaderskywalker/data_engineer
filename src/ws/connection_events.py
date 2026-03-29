@@ -4,12 +4,10 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Thread
 from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
-from src.trmeric_integrations.IntegrationRetriever import retrieveIntegrations
-from src.trmeric_services.super_agent_v1.core.context_builder import ContextBuilder
+from src.services.super_agent_v1.core.context_builder import ContextBuilder
 from .common import active_connections, decodeAuthToken
 from .static import UserSocketMap, ActiveUserSocketMap
 from src.api.logging.ProgramState import ProgramState
-from src.trmeric_services.journal.ActivityEndpoints import session_summary, tango_session_summary
 from src.utils.knowledge.TangoMemory import TangoMem
 from src.api.logging.AppLogger import appLogger, debugLogger
 # from src.database.mongo.dao import JobDAO, JobModel
@@ -17,7 +15,6 @@ from datetime import datetime, timedelta
 from src.database.dao import JobDAO, TangoDao, UsersDao
 import time
 import json
-from src.trmeric_services.journal.Vectors.ActivityOnboarding import get_transformation_summary
 
 
 def build_user_context_async(
@@ -130,7 +127,7 @@ def start_event_loop(socketio, client_id):
             print("traceback -- ", traceback.format_exc())
             
         time.sleep(2)  # wait 1 second
-from src.trmeric_services.journal.Vectors.ActivityOnboarding import get_transformation_summary
+from src.services.journal.Vectors.ActivityOnboarding import get_transformation_summary
 
 
 def register_connection_events(socketio):
@@ -186,33 +183,7 @@ def register_connection_events(socketio):
             ),
             daemon=True
         )
-        context_thread.start()
-
-        try:
-            # Run retrieveIntegrations sequentially
-            integrations_timer = start_timer("integrations_process", user_id=user_identifier, tenant_id=tenant_id)
-            try:
-                debugLogger.info(f"Starting retrieveIntegrations for tenant_id: {tenant_id}, user_id: {user_identifier}")
-                retrieveIntegrations(tenant_id, user_identifier)
-                debugLogger.info("Completed retrieveIntegrations")
-            except Exception as e:
-                appLogger.error({
-                    "event": "retrieveIntegrations failed",
-                    "error": str(e),
-                    "traceback": traceback.format_exc()
-                })
-                print(f"Error in retrieveIntegrations: {e}")
-            finally:
-                stop_timer(integrations_timer)
-
-        except Exception as e:
-            appLogger.error({
-                "event": "Precache threading failed",
-                "error": str(e),
-                "traceback": traceback.format_exc()
-            })
-            print(f"Error in precache threading: {e}")
-            
+        context_thread.start() 
             
         try:
             # Initialize JobDAO
