@@ -15,9 +15,9 @@ from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_trans
 from src.trmeric_services.agents_v2.schema import SCHEMAS
 from src.trmeric_services.agents_v2.actions.sheet_mapper_v2 import create_mapping
 from src.trmeric_services.agents_v2.actions.text_mapper import create_text_mapping
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.utils.helper.file_analyser import FileAnalyzer
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
 from src.utils.helper.decorators import log_function_io_and_time
 

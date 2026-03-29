@@ -18,10 +18,10 @@ from ..schema import SCHEMAS
 from ..actions.sheet_mapper_v2 import create_mapping
 from ..actions.text_mapper import create_text_mapping
 from ..actions.creator import Creator
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from ..config.actions import *
 from ..helper.file_analyser import FileAnalyzer
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..helper.decorators import log_function_io_and_time

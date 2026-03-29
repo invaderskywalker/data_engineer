@@ -14,7 +14,7 @@ from datetime import datetime
 from src.database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService
 from functools import wraps
 import inspect
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.database.ai_dao import DAO_REGISTRY
 
 FOLLOW_UP_INSTRUCTION = """

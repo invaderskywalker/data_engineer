@@ -1,4 +1,4 @@
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.trmeric_services.tango.functions.Types import TangoFunction
 from src.trmeric_services.summarizer.SummarizerService import SummarizerService
 

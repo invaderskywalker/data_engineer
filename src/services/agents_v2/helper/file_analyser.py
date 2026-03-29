@@ -3,7 +3,7 @@ import io
 import traceback
 from typing import Optional, Dict, Tuple
 from src.api.logging.AppLogger import appLogger
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.database.dao import FileDao
 from ..config.getter import DEFAULT_S3_FILE_PARAMS
 

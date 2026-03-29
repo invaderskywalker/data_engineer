@@ -6,7 +6,7 @@ import os
 from .TimingLogger import start_timer, stop_timer
 import uuid
 from datetime import datetime
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 
 # Ensure logs directory exists
 os.makedirs("logs", exist_ok=True)

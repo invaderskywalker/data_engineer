@@ -4,7 +4,7 @@ import traceback
 from src.database.dao import AgentRunDAO
 from src.database.Database import db_instance
 from src.api.logging.AppLogger import appLogger
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 
 from flask import Response, request, jsonify
 from io import BytesIO

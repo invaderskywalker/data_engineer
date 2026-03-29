@@ -18,7 +18,7 @@ from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousC
 from src.trmeric_services.project.projectService import ProjectService
 from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
 from src.utils.helper.event_bus import event_bus
-from src.trmeric_s3.s3 import S3Service
+from src.s3.s3 import S3Service
 from src.utils.helper.file_analyser import FileAnalyzer
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
 from src.trmeric_services.agents.functions.graphql_v2.analysis.knowledge_functions import (
