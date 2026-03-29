@@ -1,10 +1,4 @@
-# ML (scoring service still in codebase)
-scikit-learn
-
 # Fuzzy matching (used in tango/Tango.py + agents)
 fuzzywuzzy==0.18.0
 python-Levenshtein
 rapidfuzz
-
-# Graph DB (graphql_v2 route still registered — remove if graphql route is removed)
-pyTigerGraph==1.8.6

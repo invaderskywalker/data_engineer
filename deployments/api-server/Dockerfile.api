@@ -1,8 +1,9 @@
+# syntax=docker/dockerfile:1
 FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# System deps + Node.js in one layer (changes rarely → stays cached)
+# System deps + Node.js in one layer (cached until this changes)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -25,14 +26,14 @@ RUN npm install -g pptxgenjs@3.12.0 docx
 # Create venv
 RUN python3 -m venv /app/venv
 
-# Install Python deps BEFORE copying code
-# This layer only rebuilds when requirements change, not on code changes
+# Install Python deps — pip download cache persists across builds via BuildKit
 COPY requirements/base.txt requirements/base.txt
 COPY requirements/dev.txt requirements/dev.txt
 
-RUN . /app/venv/bin/activate && \
-    pip install --no-cache-dir -r requirements/base.txt && \
-    pip install --no-cache-dir -r requirements/dev.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    . /app/venv/bin/activate && \
+    pip install -r requirements/base.txt && \
+    pip install -r requirements/dev.txt
 
 # Copy application code last — only this layer rebuilds on code changes
 COPY . /app

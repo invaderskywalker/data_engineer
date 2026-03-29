@@ -6,16 +6,8 @@ eventlet
 gunicorn==21.2.0
 werkzeug
 
-# LLM / AI
+# LLM (direct OpenAI calls — no langchain)
 openai==1.55.3
-langchain-openai
-langchain-core
-langchain_experimental==0.0.64
-langchain_text_splitters
-langchain-chroma
-
-# Vector store
-chromadb==0.4.24
 
 # AWS S3
 boto3==1.34.103
@@ -31,7 +23,7 @@ python-dotenv==1.0.1
 pydantic>=2.0
 jsonschema
 
-# Document / report generation (used by super_agent)
+# Document / report generation (super_agent outputs)
 pypandoc==1.16.2
 python-docx
 python-pptx
@@ -41,7 +33,7 @@ pandas==2.2.3
 openpyxl
 tabulate
 
-# Web utils (CompanyScraper, WebSearchNode in super_agent)
+# Web utils (CompanyScraper, WebSearchNode)
 beautifulsoup4
 requests
 ddgs
