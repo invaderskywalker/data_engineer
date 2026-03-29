@@ -9,8 +9,6 @@ from src.api.logging.ProgramState import ProgramState
 from src.api.logging.AppLogger import appLogger, debugLogger
 # from src.database.mongo.dao import JobDAO, JobModel
 from datetime import datetime
-import time
-import json
 
 
 def build_user_context_async(

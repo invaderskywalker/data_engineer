@@ -5,7 +5,7 @@ from src.utils.types.getter import *
 from src.api.logging.AppLogger import appLogger
 from src.utils.helper.event_bus import event_bus
 from src.database.ai_dao import AIDAOInterpreter, AIDAOExecutor
-from src.database.dao import ProjectsDao, IdeaDao, AgentRunDAO
+from src.database.dao import AgentRunDAO
 from datetime import datetime
 
 from src.database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService

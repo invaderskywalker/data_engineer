@@ -4,7 +4,6 @@ from src.api.logging.AppLogger import appLogger
 from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
 from src.api.logging.ProgramState import ProgramState
 from .common import active_connections, superAgentController
-from src.database.Redis import RedClient
 
 def register_agent_events(socketio):
 
