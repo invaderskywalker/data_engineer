@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  tango_api:
+    build:
+      context: ../..
+      dockerfile: deployments/api-server/Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - /home/ubuntu/permanent_logs:/app/logs
+    depends_on:
+      - nginx-proxy
+
+  nginx-proxy:
+    build:
+      context: ../nginx
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+  

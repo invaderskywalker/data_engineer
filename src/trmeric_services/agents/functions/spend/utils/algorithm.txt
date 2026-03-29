@@ -1,0 +1,26 @@
+Input: 
+- uploaded files
+- Trmeric's data (all the projects on the platform) (spend by various metrics)
+
+for each metric (one of the categories) & uploaded file:
+    - find any outliers
+    - find optimizations (if any)
+    - find current risks
+    - output charts / tables of findings (breakdowns)
+    - comparison with external data 
+
+
+Categories = ['data center systems', 'devices', 'software', 'it services', 'communication services']
+
+Output:
+- charts / tables of findings (breakdowns)
+- summarization step of an overall roadmap to handling / reducing spend
+
+[Log to the user]
+
+- "We are beginning to analyze your spend-related data"
+- "Now analyzing your spend data by your providers" ✅
+- "Now analyzing your spend data by your tech stack" ✅
+- "Now analyzing your spend data by your category" ✅
+- "Now compiling risks" ✅
+- "Now compiling your optimizations" ✅

@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  tango_worker:
+    build:
+      context: ../..
+      dockerfile: deployments/worker-server/Dockerfile.worker
+    volumes:
+      - /home/ubuntu/permanent_logs:/app/logs
