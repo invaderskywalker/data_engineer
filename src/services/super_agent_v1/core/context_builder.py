@@ -3,7 +3,6 @@ from src.api.logging.AppLogger import appLogger
 import traceback
 from src.utils.helper.common import MyJSON
 from src.database.dao import TenantDaoV2, FileDao, ProviderDao, AuthDao, UsersDao, ProjectsDao, RoadmapDao
-from src.trmeric_services.integration.IntegrationService import IntegrationService
 from src.database.Redis import RedClient
 
 
@@ -36,32 +35,20 @@ class ContextBuilder:
             context = []
             context_sections = []
             try:
-                if agent_name == "trucible":
-                    context_sections = [
-                        "org_role_user",
-                        "company_basic_info",
-                        "company_competitors_info",
-                        "company_industry_info",
-                        "company_enterprise_strategies",
-                        "accessible_portfolios",
-                        "all_files_uploaded_in_agent_by_user"
-                    ]
-
-                else:
-                    context_sections = [
-                        "org_role_user",
-                        "info_about_user",
-                        # "accessible_portfolios",
-                        "company_basic_info",
-                        "company_industry_info",
-                        "company_enterprise_info",
-                        "company_competitors_info",
-                        "company_enterprise_strategies",
-                        # "integration_info_string",
-                        # "project_and_roadmap_context_string",
-                        # "program_list",
-                        # "providers_list"
-                    ]
+                context_sections = [
+                    # "org_role_user",
+                    # "info_about_user",
+                    # # "accessible_portfolios",
+                    # "company_basic_info",
+                    # "company_industry_info",
+                    # "company_enterprise_info",
+                    # "company_competitors_info",
+                    # "company_enterprise_strategies",
+                    # "integration_info_string",
+                    # "project_and_roadmap_context_string",
+                    # "program_list",
+                    # "providers_list"
+                ]
 
                 # Loop over sections and fetch data
                 for section in context_sections:
@@ -140,12 +127,6 @@ class ContextBuilder:
 
             elif section_name == "company_industry_info":
                 return TenantDaoV2.fetch_company_industry(tenant_id=self.tenant_id)
-
-            elif section_name == "integration_info_string":
-                integrations_with_projects = IntegrationService().fetchIntegrationListForUser(
-                    self.tenant_id, self.user_id, skip=True
-                )
-                return MyJSON.json_to_table(integrations_with_projects)
 
             elif section_name == "project_and_roadmap_context_string":
                 self.eligible_projects = ProjectsDao.FetchAvailableProject(

@@ -2,7 +2,6 @@ from .projects import ProjectsDao
 from .roadmap import RoadmapDao
 from .portfolios import PortfolioDao
 from .tenant import TenantDao
-from .tango import TangoDao
 from .providers import ProviderDao
 from .customer import CustomerDao
 from .knowledge import KnowledgeDao
@@ -34,7 +33,6 @@ __all__ = [
     "RoadmapDao",
     "PortfolioDao",
     "TenantDao",
-    "TangoDao",
     "ProviderDao",
     "CustomerDao",
     "KnowledgeDao",

@@ -8,14 +8,16 @@ import concurrent.futures
 import traceback
 from src.utils.helper.event_bus import Event, event_bus
 from src.database.ai_dao import AIDAOInterpreter, AIDAOExecutor
-from src.database.dao import TenantDaoV2, TangoDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, AgentRunDAO
+from src.database.dao import ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, AgentRunDAO
 from datetime import datetime
 
 from src.database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService
 from functools import wraps
 import inspect
 from src.s3.s3 import S3Service
-from src.database.ai_dao import DAO_REGISTRY
+from src.database.ai_dao.configurable_dao_v3 import ConfigurableDAO, DAOConfigLoader
+from src.database.Database import db_instance
+from typing import Dict, Any, List
 
 FOLLOW_UP_INSTRUCTION = """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -74,137 +76,6 @@ The requirement_focus handles the DATA.
 These are separate concerns. Never mix them.
 
 """
-
-
-ANALYTICAL_ACTION_DOC_TEMPLATE_REPORT = """
-  AI Analyst executes advanced analytics for `{entity_type}`.
-
-  This is NOT a simple data fetch tool.
-
-  The system can:
-  • Retrieve specific fields (raw data)
-  • Compute aggregations (COUNT, SUM, AVG, MIN, MAX)
-  • Perform derived calculations (duration, ratios, variance)
-  • Group and bucket data (month, quarter, portfolio, user, etc.)
-  • Return either entity-level records OR summarized metrics
-
-  The system automatically chooses the MOST EFFICIENT execution.
-  If only metrics are required, it will avoid full entity retrieval.
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  CORE PRINCIPLE
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Describe WHAT insight is needed.
-  Do NOT describe HOW to compute it.
-
-  The system will:
-  • Minimize data fetch
-  • Push calculations to the data layer
-  • Avoid unnecessary full-record retrieval
-  • Return aggregated results whenever possible
-
-  If headline numbers, trends, or comparisons are needed,
-  DO NOT request all fields.
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  HOW TO WRITE requirement_focus (IMPORTANT)
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  Write the analytical intent in STRUCTURED PARTS.
-
-  Think in the following blocks:
-
-  1) Measure (What to calculate)
-     Examples:
-     • Count projects
-     • Sum budget
-     • Average duration
-     • Identify top portfolios
-
-  2) Scope / Filter (Which entities)
-     Examples:
-     • Created in 2025
-     • Active projects
-     • Archived roadmaps excluded
-
-  3) Dimension / Bucket (How to group)
-     Examples:
-     • By month
-     • By portfolio
-     • By project type
-     • Quarterly trend
-
-  4) Purpose / Insight (Why)
-     Examples:
-     • For headline metrics
-     • To understand growth trend
-     • To detect workload distribution
-     • For hero section summary
-
-  Write requirement_focus like:
-
-  "Count projects created in 2025,
-   bucket by month,
-   group by portfolio,
-   to understand growth trend"
-
-  Or:
-
-  "Average project duration for completed projects,
-   grouped by portfolio"
-
-  Or (raw fetch case):
-
-  "Fetch pproject kpis for detailed semantic grouping"
-
-  Avoid vague requests like:
-  • "Fetch all projects"
-  • "Get full data"
-  • "Load everything"
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  SCHEMA & ATTRIBUTE DETAILS
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  {spec}
-
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    PARAMETERS
-    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-    params (dict):
-
-        use (bool) [REQUIRED]:
-            Enable execution of this analytical agent.
-            Must be true to run analytics.
-
-        requirement_focus (str) [REQUIRED]:
-            The core analytical question or focus.
-            Explain WHAT you want to understand and WHY.
-
-            Examples:
-            • "Identify projects with elevated delivery risk"
-            • "Understand roadmap constraint patterns"
-            • "Compare workload distribution across teams"
-
-
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  OUTPUT BEHAVIOR
-  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  The system may return:
-
-  • Entity-level records (if fields requested)
-  • Aggregated summaries
-  • Time-bucketed metrics
-  • Grouped analysis
-
-  Raw data is returned ONLY when necessary.
-  Aggregated results are preferred for performance and clarity.
-""".strip()
-
-
 
 
 ANALYTICAL_ACTION_DOC_TEMPLATE_NORMAL = """
@@ -422,6 +293,67 @@ def agent_display_name(agent_key: str) -> str:
     return base.title() + " Agent"
 
 
+# ==============================================================
+# DAO FACTORY — dynamic registry of ConfigurableDAO instances
+# ==============================================================
+
+class DAOFactory:
+    """
+    Central DAO factory.
+    - Creates ConfigurableDAO instances on demand
+    - Caches them for the process lifetime
+    - Replaces the static DAO_REGISTRY
+    """
+
+    _registry: Dict[str, ConfigurableDAO] = {}
+
+    @classmethod
+    def get_dao(cls, entity_type: str) -> ConfigurableDAO:
+        if entity_type not in cls._registry:
+            cls._registry[entity_type] = ConfigurableDAO(entity_type)
+        return cls._registry[entity_type]
+
+    @classmethod
+    def get_entity_fn_map(cls) -> Dict[str, str]:
+        """
+        Returns {entity_type: fn_name} derived from dao_attributes.
+        fn_name convention: fetch_{entity_type}_data
+        """
+        rows = db_instance.execute_query_safe(
+            "SELECT DISTINCT entity_type FROM dao_attributes WHERE is_active = TRUE",
+            (),
+        )
+        return {r["entity_type"]: f"fetch_{r['entity_type']}_data" for r in rows}
+
+    @classmethod
+    def get_schema_for_agent(cls, entity_type: str) -> Dict[str, Any]:
+        """
+        Returns schema in the format _make_analytical_fn expects:
+        {
+            attr_name: {
+                "important_info_to_be_understood_by_llm": str,
+                "fields": {field_name: sql_expr, ...},
+                "intel": {field_name: {...}, ...},
+            },
+            ...
+        }
+        Values are sourced from DB (dao_attributes, dao_fields, dao_field_intel).
+        """
+        attr_rows = db_instance.execute_query_safe(
+            "SELECT attr_name, description FROM dao_attributes WHERE entity_type = %s AND is_active = TRUE",
+            (entity_type,),
+        )
+        schema: Dict[str, Any] = {}
+        for row in attr_rows:
+            cfg = DAOConfigLoader.load_attr(entity_type, row["attr_name"])
+            schema[row["attr_name"]] = {
+                "important_info_to_be_understood_by_llm": row["description"],
+                "fields": cfg["fields"],
+                "intel": cfg["intel"],
+            }
+        return schema
+
+
 class AIDaoAgentDataGetter:
     def __init__(self, tenant_id: int, user_id: int, session_id: str, conversation= "", **kwargs):
         self.tenant_id = tenant_id
@@ -430,25 +362,28 @@ class AIDaoAgentDataGetter:
         self.event_bus = event_bus
         self.conversation = conversation
         self.mode = kwargs.get("mode")
+        self.mode = "research"
         print("AIDaoAgentDataGetter init ", self.mode)
-        self.fn_maps = {
-            "fetch_projects_data_using_project_agent": self._make_analytical_fn(entity_type="project"),
-            "fetch_roadmaps_data_using_roadmap_agent": self._make_analytical_fn(entity_type="roadmap"),
-            "fetch_ideas_data_using_idea_agent": self._make_analytical_fn(entity_type="idea"),
-            "list_issues_aka_bug_enhancement": self._make_analytical_fn(entity_type="issues_aka_bug_enhancement"),
-            
-            "fetch_tango_usage_qna_data": self._make_analytical_fn(entity_type="tango_conversation"),
-            "fetch_tango_stats": self._make_analytical_fn(entity_type="tango_stats"),
-            "fetch_users_data": self._make_analytical_fn(entity_type="users"),
-            "fetch_agent_activity_data": self._make_analytical_fn(entity_type="tango_activity_log"),
-            
-            "log_issues_aka_bug_enhancement": self.log_bug_or_enhancement,
-            "update_issues_aka_bug_enhancement": self.update_bug_enhancement,  
-        }
+        self.fn_maps = self._build_fn_maps()
         
     # ==========================================================================
+    # DYNAMIC FN_MAPS BUILDER
+    # ==========================================================================
+    def _build_fn_maps(self) -> Dict[str, Any]:
+        """
+        Builds fn_maps dynamically from all entity_types present in DB.
+        Non-analytical operational functions are added explicitly.
+        """
+        fn_maps: Dict[str, Any] = {}
+
+        for entity_type, fn_name in DAOFactory.get_entity_fn_map().items():
+            fn_maps[fn_name] = self._make_analytical_fn(entity_type=entity_type)
+
+        return fn_maps
+
+    # ==========================================================================
     # ANALYTICAL FUNCTION FACTORY
-    # ==========================================================================        
+    # ==========================================================================
     def _make_analytical_fn(self, *, entity_type: str):
         """
         Factory for entity-bound analytical agent functions.
@@ -484,11 +419,9 @@ class AIDaoAgentDataGetter:
                     )
                 ]
             )
-        dao_cls = DAO_REGISTRY.get(entity_type)
-        # schema = manifest.FIELD_REGISTRY
         import json
-        
-        raw_schema = dao_cls.get_available_attributes()
+
+        raw_schema = DAOFactory.get_schema_for_agent(entity_type)
         schema = {}
         if raw_schema.get("overall_description"):
             schema["overall_description"] = raw_schema.get("overall_description")
@@ -506,10 +439,6 @@ class AIDaoAgentDataGetter:
         if self.mode == "research":
             _fn.__doc__ = ANALYTICAL_ACTION_DOC_TEMPLATE_NORMAL.format(
                 entity_type=entity_type, spec=schema_str, FOLLOW_UP_INSTRUCTION=FOLLOW_UP_INSTRUCTION
-            )
-        elif self.mode == "report":
-            _fn.__doc__ = ANALYTICAL_ACTION_DOC_TEMPLATE_REPORT.format(
-                entity_type=entity_type, spec=schema_str
             )
         return _fn
 
@@ -825,81 +754,3 @@ class AIDaoAgentDataGetter:
             "export_info": export_res,
         }
 
-    # ======================================================================
-    # CUSTOMER FEEDBACK — OPERATIONAL (CRUD)
-    # ======================================================================
-    @log_function_io_and_time
-    def log_bug_or_enhancement(
-        self,
-        params: dict = DEFAULT_PARAMS_FOR_BUG_ENHANCEMENT
-    ) -> dict:
-        """
-        Creates a **bug or enhancement record** for customer feedback.
-        This is an operational action — NOT analytical.
-
-        Intended usage:
-            • Customer Success
-            • Support conversations
-            • Product feedback capture
-
-        Parameters:
-            params (dict):
-                type (str): bug | enhancement
-                title (str): short summary
-                description (str): very detailed explanation of the issue/bug or enhancement
-                priority (str): low | medium | high | critical
-        """
-        from src.database.dao import BugEnhancementDao
-
-        return {
-            "custom_id": BugEnhancementDao.create_bug_enhancement(
-                tenant_id=self.tenant_id,
-                type=params.get("type", "bug"),
-                title=params.get("title"),
-                description=params.get("description"),
-                priority=params.get("priority"),
-                created_by_id=self.user_id,
-            )
-        }
-
-    @log_function_io_and_time
-    def update_bug_enhancement(
-        self,
-        params: dict = DEFAULT_PARAMS_FOR_BUG_UPDATE
-    ) -> dict:
-        """
-        Updates an existing bug or enhancement using its public `custom_id`.
-
-        Supported updates:
-            • status
-            • priority
-            • resolution_description
-            • assignment changes
-
-        Parameters:
-            params (dict):
-                custom_id (str):
-                    External identifier (e.g., TRB-1234)
-
-                updates (dict):
-                    Fields to update.
-
-        Returns:
-            dict:
-                Update confirmation.
-        """
-        from src.database.dao import BugEnhancementDao
-
-        internal_id = BugEnhancementDao.get_internal_id_from_custom_id(
-            tenant_id=self.tenant_id,
-            custom_id=params.get("custom_id"),
-        )
-
-        BugEnhancementDao.update_bug_enhancement(
-            tenant_id=self.tenant_id,
-            bug_id=internal_id,
-            updates=params.get("updates", {}),
-            updated_by_id=self.user_id,
-        )
-
-        return {"updated": True}

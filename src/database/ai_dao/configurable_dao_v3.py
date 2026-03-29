@@ -1,12 +1,8 @@
 from typing import List, Dict, Any, Optional
 from functools import lru_cache
+from types import SimpleNamespace
 
 from src.database.Database import db_instance
-from src.database.models import (
-    DAOAttribute,
-    DAOField,
-    DAOFieldIntel,
-)
 
 from .intel import FieldIntel
 from .base import BaseDAOQueryBuilder
@@ -27,38 +23,49 @@ class DAOConfigLoader:
         Cached for performance.
         """
 
-        session = db_instance.get_session()
-
-        attr = (
-            session.query(DAOAttribute)
-            .filter_by(
-                entity_type=entity_type,
-                attr_name=attr_name,
-                is_active=True
-            )
-            .first()
+        attr_rows = db_instance.execute_query_safe(
+            """
+            SELECT id, table_name, table_alias, description, id_field,
+                   base_where, where_extra, joins, group_by
+            FROM dao_attributes
+            WHERE entity_type = %s AND attr_name = %s AND is_active = TRUE
+            LIMIT 1
+            """,
+            (entity_type, attr_name),
         )
 
-        if not attr:
+        if not attr_rows:
             raise ValueError(f"No config found for {entity_type}.{attr_name}")
 
-        fields = session.query(DAOField).filter_by(attr_id=attr.id).all()
-        intel_rows = session.query(DAOFieldIntel).filter_by(attr_id=attr.id).all()
+        attr_row = attr_rows[0]
+        attr_id = attr_row["id"]
 
-        # Build fields map
-        fields_map = {f.field_name: f.sql_expression for f in fields}
+        field_rows = db_instance.execute_query_safe(
+            "SELECT field_name, sql_expression FROM dao_fields WHERE attr_id = %s",
+            (attr_id,),
+        )
 
-        # Build intel map
-        intel: Dict[str, Any] = {}
-        for row in intel_rows:
-            intel[row.field_name] = {
-                "type": row.type,
-                "column": row.column_name,
-                "mapping": row.mapping or {},
+        intel_rows = db_instance.execute_query_safe(
+            "SELECT field_name, type, column_name, mapping FROM dao_field_intel WHERE attr_id = %s",
+            (attr_id,),
+        )
+
+        fields_map = {r["field_name"]: r["sql_expression"] for r in field_rows}
+
+        intel: Dict[str, Any] = {
+            r["field_name"]: {
+                "type": r["type"],
+                "column": r["column_name"],
+                "mapping": r["mapping"] or {},
             }
+            for r in intel_rows
+        }
+
+        # SimpleNamespace keeps dot-access (meta.table_alias etc.) working
+        meta = SimpleNamespace(**{k: v for k, v in attr_row.items() if k != "id"})
 
         return {
-            "meta": attr,
+            "meta": meta,
             "fields": fields_map,
             "intel": intel,
         }
@@ -196,18 +203,11 @@ class ConfigurableDAO:
     # UTILITY: LIST AVAILABLE ATTRIBUTES
     # ----------------------------------------------------------
     def get_available_attributes(self) -> List[str]:
-        session = db_instance.get_session()
-
-        rows = (
-            session.query(DAOAttribute)
-            .filter_by(
-                entity_type=self.entity_type,
-                is_active=True
-            )
-            .all()
+        rows = db_instance.execute_query_safe(
+            "SELECT attr_name FROM dao_attributes WHERE entity_type = %s AND is_active = TRUE",
+            (self.entity_type,),
         )
-
-        return [r.attr_name for r in rows]
+        return [r["attr_name"] for r in rows]
 
     # ----------------------------------------------------------
     # UTILITY: RELOAD CONFIG CACHE
