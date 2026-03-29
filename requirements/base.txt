@@ -4,7 +4,7 @@ Flask_Cors==4.0.0
 Flask-SocketIO
 eventlet
 gunicorn==21.2.0
-werkzeug
+werkzeug==3.0.1
 
 # LLM (direct OpenAI calls — no langchain)
 openai==1.55.3

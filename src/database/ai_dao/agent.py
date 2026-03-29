@@ -441,49 +441,7 @@ class AIDaoAgentDataGetter:
 
   
     def _resolve_entity_scope(self, *, entity_type: str, structured_plan):
-        """
-        Resolves the eligible entity IDs for a given entity type.
-
-        This encapsulates all entity-specific access rules and scope logic.
-        """
-
-        if entity_type == "project":
-            eligible_projects = ProjectsDao.FetchAvailableProject(
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-            )
-
-            print("is_archived_project", "is_archived_project" in str(structured_plan))
-            # print("is_archived_project", "is_archived_project" in str(structured_plan))
-            # Include archived projects only if the plan requires it
-            # if "is_archived_project" in str(structured_plan):
-            archived = ProjectsDao.FetchAccesibleArchivedProjects(
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-            )
-            eligible_projects += archived
-
-            return eligible_projects
-
-        if entity_type == "roadmap":
-            from src.database.dao import RoadmapDao
-
-            return RoadmapDao.fetchEligibleRoadmapList(
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-                fetch_only_ids=True,
-            )
-            
-        if entity_type == "idea":
-            return IdeaDao.fetchIdeasIds(
-                tenant_id=self.tenant_id,
-            )
-
-        # if entity_type == "issues_aka_bug_enhancement":
-        #     # Tenant-scoped; no entity filtering
-        return None
-
-        # raise ValueError(f"Unsupported entity_type: {entity_type}")
+        return []
 
     # ==========================================================================
     # CANONICAL ANALYTICAL ENGINE (SINGLE SOURCE OF TRUTH)

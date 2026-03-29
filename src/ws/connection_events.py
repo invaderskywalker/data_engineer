@@ -9,7 +9,6 @@ from src.api.logging.ProgramState import ProgramState
 from src.api.logging.AppLogger import appLogger, debugLogger
 # from src.database.mongo.dao import JobDAO, JobModel
 from datetime import datetime
-from src.database.dao import JobDAO, TangoDao, UsersDao
 import time
 import json
 
@@ -47,85 +46,6 @@ def build_user_context_async(
 
 loop_threads = {}
 
-def start_event_loop(socketio, client_id):
-    """Background loop that emits events every second while client is connected."""
-    # print("start_event_loop ", client_id)
-    while client_id in active_connections:
-        # print("start_event_loop yes")
-        try:
-            # Get tenant_id for the client
-            tenant_id = active_connections.get(client_id, {}).get("tenant_id")
-            if not tenant_id:
-                print(f"No tenant_id found for client {client_id}")
-                return
-            
-            # socketio.emit("heartbeat", {"message": f"Tick for {client_id}"}, room=client_id)
-            
-            state_key = f"TENANT_LEVEL_INTEGRATION_INFO_"
-            state = TangoDao.fetchLatestTangoStatesForTenant(tenant_id, state_key)
-            
-            if state:
-                state_value = json.loads(state["value"])
-                for conn_client_id, conn_info in active_connections.items():
-                    if UsersDao.checkIfUserBelongsToTenant(tenant_id, conn_info["user_id"]):
-                        socketio.emit(
-                            "integration_agent",
-                            {
-                                "event": "cron_running_counter",
-                                "data": state_value
-                            },
-                            room=conn_client_id
-                        )
-            state = TangoDao.fetchLatestTangoStatesForTenant(
-                tenant_id, 
-                "TENANT_LEVEL_PROJECT_CREATION_INFO_"
-            )
-            # if state:
-            #     state_value = json.loads(state["value"])
-            #     for conn_client_id, conn_info in active_connections.items():
-            #         if UsersDao.checkIfUserBelongsToTenant(tenant_id, conn_info["user_id"]):
-            #             socketio.emit(
-            #                 "sync_agent",
-            #                 {
-            #                     "event": "project_creation_counter",
-            #                     "data": state_value
-            #                 },
-            #                 room=conn_client_id
-            #             )
-                        
-            state = TangoDao.fetchLatestTangoStatesForTenant(
-                tenant_id, 
-                "TENANT_LEVEL_ROADMAP_CREATION_INFO_"
-            )
-            # if state:
-            #     state_value = json.loads(state["value"])
-            #     for conn_client_id, conn_info in active_connections.items():
-            #         if UsersDao.checkIfUserBelongsToTenant(tenant_id, conn_info["user_id"]):
-            #             socketio.emit(
-            #                 "sync_agent",
-            #                 {
-            #                     "event": "roadmap_creation_counter",
-            #                     "data": state_value
-            #                 },
-            #                 room=conn_client_id
-            #             )
-            # else:
-            #     socketio.emit(
-            #         "integration_agent",
-            #         {
-            #             "event": "cron_running_counter",
-            #             "data": {}
-            #         },
-            #         room=client_id
-            #     )
-
-        except Exception as e:
-            print(f"Error sending heartbeat to {client_id}: {e}")
-            print("traceback -- ", traceback.format_exc())
-            
-        time.sleep(2)  # wait 1 second
-
-
 def register_connection_events(socketio):
     @socketio.on("connect")
     def handle_connect(auth):
@@ -160,10 +80,6 @@ def register_connection_events(socketio):
             "tenant_id": tenant_id
         }
         
-        # start loop for this client
-        # loop_thread = threading.Thread(target=start_event_loop, args=(socketio, client_id), daemon=True)
-        # loop_threads[client_id] = loop_thread
-        # loop_thread.start()
         
         debugLogger.info(f"Client connected with session ID: {client_id}, user: {user_name}")
         socketio.emit("response", {"message": f"Hello {user_name} from server!"}, room=client_id)
@@ -180,76 +96,6 @@ def register_connection_events(socketio):
             daemon=True
         )
         context_thread.start() 
-            
-        try:
-            # Initialize JobDAO
-            job_dao = JobDAO
-            
-            # Generate a unique schedule_id for this socket connection
-            schedule_id = f"socket-{client_id}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
-            run_id = f"socket-{tenant_id}-{user_identifier}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
-
-            # Define job operations
-            job_ops = [
-                {
-                    "job_type": "portfolio-review",
-                    "name": "PortfolioReview",
-                    "payload": {
-                        "job_type": "portfolio-review",
-                        # "schedule_id": schedule_id,
-                        "run_id": run_id,
-                        # "total_count": 2
-                    }
-                },
-                {
-                    "job_type": "roadmap-insights-cache",
-                    "name": "RoadmapInsightsCache",
-                    "payload": {
-                        "job_type": "roadmap-insights-cache",
-                        # "schedule_id": schedule_id,
-                        "run_id": run_id,
-                        # "total_count": 2,
-                        "session_id": ""
-                    }
-                },
-            ]
-
-            # Enqueue jobs
-            enqueued_jobs = []
-            for op in job_ops:
-                # Check if a similar job was enqueued in the last hour
-                mins = 60 * 24
-                if int(tenant_id) == 227:
-                    mins = 60 * 12
-                if job_dao.check_recent_job(
-                    tenant_id=tenant_id, 
-                    user_id=user_identifier, 
-                    job_type=op["job_type"],
-                    minutes=mins
-                ):
-                    debugLogger.info(f"Skipping {op['name']} for tenant {tenant_id}, user {user_identifier}: Job exists within last hour")
-                    continue
-
-                # Create job
-                job_id = job_dao.create(
-                    tenant_id=tenant_id,
-                    user_id=user_identifier,
-                    schedule_id=None,
-                    job_type=op["job_type"],
-                    payload=op["payload"]
-                )
-                enqueued_jobs.append(job_id)
-                debugLogger.info(f"Enqueued {op['name']} job for tenant {tenant_id}, user {user_identifier} (job_id: {job_id})")
-
-            debugLogger.info(f"Enqueued {len(enqueued_jobs)} jobs for tenant {tenant_id}, user {user_identifier}")
-
-        except Exception as e:
-            appLogger.error({
-                "event": "Socket_connect_job_enqueue_failed",
-                "error": str(e),
-                "traceback": traceback.format_exc()
-            })
-            print(f"Error enqueuing jobs: {e}")
             
         stop_timer(timer_id)
     

@@ -2,7 +2,6 @@
 # from .classes import ALL_AGENTS_V2
 from src.api.logging.AppLogger import appLogger, debugLogger
 from src.database.dao import TangoDao
-from src.services.phoenix.prompts import ChatTitlePrompt
 from .config import CONFIG_MAP
 from src.utils.json_parser import extract_json_after_llm
 import threading
@@ -33,65 +32,12 @@ class AgentsRunner():
         )
         self.llm = ChatGPTClient(self.user_id, self.tenant_id)
         
-       
-    def generate_chat_title(self, session_id, meta, agent_name):
-        """Run title generation in a separate thread and emit result."""
-        try:
-
-            print("generate_chat_title 0 --- ", session_id, meta)
-            session_id = session_id
-            current_title = TangoDao.fetchChatTitleForSession(session_id=session_id)
-            print("generate_chat_title 1", current_title, current_title == "New Chat" or current_title == None)
-            # if current_title == "New Chat" or current_title == None:
-            #     pass
-            # else:
-            #     return
-            
-            conv = TangoDao.fetchChatsForSessionAndTypes(session_id=session_id, types=[1, 3])
-
-            conv = AgentRunDAO.get_agent_qna_steps(
-                session_id=session_id,
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-                agent_name=agent_name
-            )
-            print("generate_chat_title 2", len(conv))
-            tenant_id = meta.get("tenant_id")
-            user_id = meta.get("user_id")
-            if len(conv) < 2 and len(conv) > 10:
-                TangoDao.insert_chat_title(session_id=session_id, title="New Chat", tenant_id=tenant_id, user_id=user_id)
-                return
-            title_prompt = ChatTitlePrompt.generate_title(conv)
-            # print("title prompt -- ", title_prompt.formatAsString())
-            modelOptions = ModelOptions(
-                model="gpt-4.1-mini",
-                max_tokens=4096,
-                temperature=0.4
-            )
-            title_response = self.llm.run(
-                title_prompt, 
-                modelOptions, 
-                "title::create", 
-                logInDb=meta,
-                socketio=self.socketio, 
-                client_id=self.client_id
-            )
-            print("title_response ", title_response)
-            chat_title = extract_json_after_llm(title_response)
-            print("title_response json ", chat_title)
-            chat_title_string = chat_title.get("chat_title") or None
-            if chat_title_string:
-                TangoDao.insert_chat_title(session_id=session_id, title=chat_title_string, tenant_id=tenant_id, user_id=user_id, agent_name=agent_name)
-        except Exception as e:
-            appLogger.error({"error": "ChatTitleGeneration", "exception": str(e), "traceback": traceback.format_exc()})
- 
-    
     def run(self, agent_name: str, query: str, meta = None):
         from datetime import datetime, timedelta, timezone
         ist_time = datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
         print("Incoming runner run (IST):", ist_time.strftime("%Y-%m-%d %H:%M:%S.%f"))
         
-        self.tangoDataInserter.addUserMessage(message=query)
+        # self.tangoDataInserter.addUserMessage(message=query)
         
         print("run agents runner run ", agent_name, query)
         debugLogger.info(f"started agent runner run fn - wuth agent: {agent_name} and {query}")
@@ -121,7 +67,7 @@ class AgentsRunner():
             )
             # self.tangoDataInserter.addTangoCode("")
             # self.tangoDataInserter.addTangoData("")
-            self.tangoDataInserter.addTangoResponse(response)
+            # self.tangoDataInserter.addTangoResponse(response)
             return
             
         tenant_id = self.log_info.get("tenant_id")
@@ -191,7 +137,7 @@ class AgentsRunner():
         #     MyJSON.dumps(execution_trace)
         # )
         # self.tangoDataInserter.addTangoData("")
-        self.tangoDataInserter.addTangoResponse(response)
-        title_thread = threading.Thread(target=self.generate_chat_title, args=(self.log_info.get("session_id"), self.log_info, agent_name))
-        title_thread.start()
+        # self.tangoDataInserter.addTangoResponse(response)
+        # title_thread = threading.Thread(target=self.generate_chat_title, args=(self.log_info.get("session_id"), self.log_info, agent_name))
+        # title_thread.start()
         return

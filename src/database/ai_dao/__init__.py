@@ -6,7 +6,6 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 
 from src.api.logging.AppLogger import appLogger
-from src.database.dao import ProjectsDao, RoadmapDao
 from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.utils.json_parser import extract_json_after_llm
@@ -99,24 +98,6 @@ class AIDAOInterpreter:
             schema_json = json.dumps(schema, indent=2)
             id_field = get_entity_id_field(dao_type)
             requirement_focus = requirement_focus or "No specific focus provided. Explore broadly."
-
-            # ----------------------------------------------------------
-            # Build short context for the LLM (optional but helpful)
-            # ----------------------------------------------------------
-            context = ""
-            if dao_type == "project":
-                proj_ids = ProjectsDao.FetchAvailableProject(
-                    tenant_id=self.tenant_id, user_id=self.user_id
-                )
-                proj_list = ProjectsDao.fetchProjectIdTitleAndPortfolio(
-                    tenant_id=self.tenant_id, project_ids=proj_ids
-                )
-                context = f"Accessible Projects:\n{MyJSON.json_to_table(proj_list)}"
-            elif dao_type == "roadmap":
-                rm_list = RoadmapDao.fetchEligibleRoadmapList(
-                    tenant_id=self.tenant_id, user_id=self.user_id
-                )
-                context = f"Accessible Roadmaps:\n{MyJSON.json_to_table(rm_list)}"
 
             # ----------------------------------------------------------
             # SYSTEM PROMPT 
