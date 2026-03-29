@@ -23,9 +23,9 @@ def get_url() -> str:
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")
 
-    if not all([name, user, password]):
+    if not all([name, user]):
         raise ValueError(
-            "Missing required DB env vars: DB_NAME, DB_USER, DB_PASSWORD"
+            "Missing required DB env vars: DB_NAME, DB_USER"
         )
 
     return f"postgresql://{user}:{password}@{host}:{port}/{name}"
