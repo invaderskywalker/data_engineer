@@ -7,7 +7,7 @@ from src.api.middleware.request_logging import RequestLoggingMiddleware
 from src.ws.events import init_websocket_events
 from src.routes.super_agent import superAgentAIRoute
 from src.routes.health import healthRoute
-from src.routes.data_engineer import dataEngineerRoute
+# from src.routes.data_engineer import dataEngineerRoute
 
 from src.utils.socketio_init import SocketInitializer
 
@@ -18,7 +18,7 @@ from src.utils.socketio_init import SocketInitializer
 def init_routes(app: Flask):
     app.register_blueprint(superAgentAIRoute)
     app.register_blueprint(healthRoute)
-    app.register_blueprint(dataEngineerRoute)
+    # app.register_blueprint(dataEngineerRoute)
 
 
 # socketio = SocketIO(cors_allowed_origins="*")
