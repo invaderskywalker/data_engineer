@@ -1,21 +1,68 @@
+# Web framework
 Flask==3.0.2
 Flask_Cors==4.0.0
 Flask-SocketIO
 eventlet
-openai==1.55.3
-peewee==3.17.1
-python-dotenv==1.0.1
 gunicorn==21.2.0
+werkzeug
+
+# LLM / AI
+openai==1.55.3
+langchain-openai
+langchain-core
+langchain_experimental==0.0.64
+langchain_text_splitters
+langchain-chroma
+
+# Vector store
 chromadb==0.4.24
+
+# AWS
 boto3==1.34.103
-slack_sdk
+smart_open[boto3]
+
+# Database
+peewee==3.17.1
+pymongo==4.8.0
+psycopg2-binary
+
+# Config
+python-dotenv==1.0.1
+pydantic>=2.0
+
+# Document generation
 python-docx
 python-pptx
+pypandoc==1.16.2
+pymupdf
+docx2txt
 PyPDF2
-beautifulsoup4 
-scrapy 
-playwright
-pydantic>=2.0
-pymongo==4.8.0
+
+# Data processing
+pandas==2.2.3
+openpyxl
+xlrd
+pyarrow
+tabulate
+jsonschema
+
+# HTTP / Web
+beautifulsoup4
+requests
+
+# Google APIs
+google-auth
+google-api-python-client
+google_auth_oauthlib
+
+# Slack
+slack_sdk
+
+# Utilities
+python-dateutil
+tenacity==8.2.3
+gevent
+jwt
 pillow
 pytesseract
+olefile

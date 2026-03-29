@@ -2,15 +2,10 @@ FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Copy only necessary files
-COPY . /app
-
-
-# Install dependencies and cron, supervisor
+# System deps + Node.js in one layer (changes rarely → stays cached)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
-    ffmpeg \
     g++ \
     cmake \
     curl \
@@ -23,64 +18,41 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mupdf-tools \
     tesseract-ocr \
     libtesseract-dev \
-    texlive-xetex \
-    texlive-fonts-recommended \
-    lmodern \
-    # ---- wkhtmltopdf + fonts (NEW) ----
     wkhtmltopdf \
     pandoc \
     fonts-dejavu \
     fonts-liberation \
     xfonts-base \
-    && rm -rf /var/lib/apt/lists/*
-
-# ---- Node.js + pptxgenjs (for PPT generation) ----
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pptxgenjs globally so any workspace can use it
-RUN npm install -g pptxgenjs@3.12.0
-RUN npm install -g docx
+# Node packages (changes rarely → stays cached)
+RUN npm install -g pptxgenjs@3.12.0 docx
 
-# Create virtual environment and install Python dependencies
-RUN rm -rf venv
-RUN rm -rf logs
-RUN python3 -m venv venv
+# Create venv (changes rarely → stays cached)
+RUN python3 -m venv /app/venv
+
+# Install Python deps BEFORE copying code
+# This layer is only rebuilt when requirements files change
+COPY requirements/base.txt requirements/base.txt
+COPY requirements/dev.txt requirements/dev.txt
+
+RUN . /app/venv/bin/activate && \
+    pip install --no-cache-dir -r requirements/base.txt && \
+    pip install --no-cache-dir -r requirements/dev.txt
+
+# Download spaCy model (sm = ~50MB vs lg = ~750MB)
+RUN . /app/venv/bin/activate && python -m spacy download en_core_web_sm
+
+# Copy application code last — only this layer rebuilds on code changes
+COPY . /app
 RUN mkdir -p logs
-
-COPY requirements/base.txt requirements.txt
-RUN . /app/venv/bin/activate && pip install --no-cache-dir -r requirements.txt -v
-
-COPY requirements/dev.txt requirements.txt
-RUN . /app/venv/bin/activate && pip install --no-cache-dir -r requirements.txt -v
-
-RUN . /app/venv/bin/activate && \
-    pip install gevent --upgrade && \
-    pip install psycopg2-binary && \
-    pip install jwt && \
-    pip install python-dateutil && \
-    pip install tenacity==8.2.3 && \
-    pip install langchain_experimental==0.0.64
-
-RUN . /app/venv/bin/activate && \
-    python -m spacy download en_core_web_lg && \
-    python -m spacy download en_core_web_sm
-
-RUN . /app/venv/bin/activate && \
-    pip install google-auth google-api-python-client google_auth_oauthlib langchain_text_splitters
-
-RUN . /app/venv/bin/activate && \
-    pip install pymupdf && \
-    pip install -U langchain-chroma && \
-    pip install -U langchain-openai langchain-core pydantic
 
 ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     QT_QPA_PLATFORM=offscreen
 
-# Expose port for Gunicorn
 EXPOSE 8000
 
-# Run Gunicorn with eventlet for WebSocket support
 CMD ["/app/venv/bin/gunicorn", "--timeout", "120", "-w", "1", "-k", "eventlet", "-b", "0.0.0.0:8000", "--log-level", "debug", "src.trmeric_api.app.App:app"]

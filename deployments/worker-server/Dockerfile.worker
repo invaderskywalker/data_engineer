@@ -2,18 +2,10 @@ FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
-# Copy app files
-# Copy application files
-COPY . /app
-COPY ./deployments/worker-server/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY ./deployments/worker-server/cronjob /etc/cron.d/daily_cron_job
-
-
-# Install dependencies and cron, supervisor
+# System deps (changes rarely → stays cached)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
-    ffmpeg \
     g++ \
     cmake \
     curl \
@@ -28,54 +20,33 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtesseract-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create virtual environment and install Python dependencies
-RUN rm -rf venv
-RUN rm -rf logs
-RUN python3 -m venv venv
+# Create venv (changes rarely → stays cached)
+RUN python3 -m venv /app/venv
+
+# Install Python deps BEFORE copying code
+# This layer is only rebuilt when requirements files change
+COPY requirements/base.txt requirements/base.txt
+COPY requirements/dev.txt requirements/dev.txt
+
+RUN . /app/venv/bin/activate && \
+    pip install --no-cache-dir -r requirements/base.txt && \
+    pip install --no-cache-dir -r requirements/dev.txt
+
+# Download spaCy model (sm = ~50MB vs lg = ~750MB)
+RUN . /app/venv/bin/activate && python -m spacy download en_core_web_sm
+
+# Copy application code last — only this layer rebuilds on code changes
+COPY . /app
 RUN mkdir -p logs
 
-COPY requirements/base.txt requirements.txt
-RUN . /app/venv/bin/activate && pip install --no-cache-dir -r requirements.txt -v
+# Supervisor + cron config
+COPY ./deployments/worker-server/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./deployments/worker-server/cronjob /etc/cron.d/daily_cron_job
 
-COPY requirements/dev.txt requirements.txt
-RUN . /app/venv/bin/activate && pip install --no-cache-dir -r requirements.txt -v
-
-RUN . /app/venv/bin/activate && \
-    pip install gevent --upgrade && \
-    pip install psycopg2-binary && \
-    pip install jwt && \
-    pip install python-dateutil && \
-    pip install tenacity==8.2.3 && \
-    pip install langchain_experimental==0.0.64
-
-RUN . /app/venv/bin/activate && \
-    python -m spacy download en_core_web_lg && \
-    python -m spacy download en_core_web_sm
-
-RUN . /app/venv/bin/activate && \
-    pip install google-auth google-api-python-client google_auth_oauthlib langchain_text_splitters
-
-RUN . /app/venv/bin/activate && \
-    pip install pymupdf && \
-    pip install -U langchain-chroma && \
-    pip install -U langchain-openai langchain-core pydantic
-
-RUN . /app/venv/bin/activate && \
-    pip install playwright && \
-    playwright install --with-deps
+RUN chmod 0644 /etc/cron.d/daily_cron_job && \
+    crontab /etc/cron.d/daily_cron_job && \
+    mkdir -p /var/log/cron
 
 EXPOSE 8000
 
-
-
-# Give execution rights on the cron job file and apply the cron job
-RUN chmod 0644 /etc/cron.d/daily_cron_job
-RUN crontab /etc/cron.d/daily_cron_job
-
-RUN mkdir -p /var/log/cron
-
-
-
-# Start Supervisor to run both cron and Gunicorn
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-

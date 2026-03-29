@@ -1,1 +1,0 @@
-PSEUDO_COLUMNS = []
