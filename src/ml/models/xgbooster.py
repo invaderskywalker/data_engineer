@@ -8,7 +8,6 @@ import xgboost as xgb
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
 from src.database.dao import TangoDao
-from src.api.logging.AppLogger import appLogger
 
 
 # print("=== ACTUAL XGBOOST VERSION AT RUNTIME ===")
@@ -110,7 +109,6 @@ class XGBoostManager:
                 os.unlink(temp_filename)
             except Exception:
                 print("Error unlinking temp file")
-                pass
 
         meta_row = TangoDao.fetchLatestTangoStatesTenant(tenant_id=self.tenant_id, key=meta_key)
         if meta_row:

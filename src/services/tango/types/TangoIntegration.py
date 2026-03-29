@@ -1,5 +1,5 @@
-from src.trmeric_services.tango.types.TangoIntegrationData import TangoIntegrationData
-from src.trmeric_services.tango.functions.Types import ApiMetadata
+from src.services.tango.types.TangoIntegrationData import TangoIntegrationData
+from src.services.tango.functions.Types import ApiMetadata
 
 
 class TangoIntegration:
@@ -27,7 +27,6 @@ class TangoIntegration:
         """
         Initializes the integration with all the relevant informatioon and data.
         """
-        pass
         
     def formatIntegration(self):
         """

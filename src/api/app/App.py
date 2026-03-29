@@ -1,6 +1,6 @@
-from flask import Flask, request, g
+from flask import Flask
 # from flask_socketio import SocketIO
-# from src.trmeric_services.provider.Routes import providerBP
+# from src.services.provider.Routes import providerBP
 from src.database.Database import db_instance
 from flask_cors import CORS
 from src.api.middleware.request_logging import RequestLoggingMiddleware

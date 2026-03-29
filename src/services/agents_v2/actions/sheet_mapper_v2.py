@@ -1,15 +1,11 @@
 import pandas as pd
-import logging
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.utils.json_parser import extract_json_after_llm
 from src.api.logging.AppLogger import appLogger, debugLogger
-import json
 import uuid
 from src.database.dao import JobDAO
 from ..helper.common import MyJSON
-from .conform_helpers import conform_project_update_data_llm
-from ..schema import SCHEMAS
 from src.api.logging.ProgramState import ProgramState
 import traceback
 
@@ -29,8 +25,7 @@ DEFAULT_MODEL = "gpt-4.1"
 DEFAULT_TEMPERATURE = 0.1
 DEFAULT_OUTPUT_TOKENS = 1000
 
-from datetime import date, datetime
-from uuid import UUID
+from datetime import datetime
 
 
 # class DateEncoder(json.JSONEncoder):

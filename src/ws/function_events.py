@@ -4,8 +4,8 @@ import traceback
 import datetime
 from src.api.logging.AppLogger import appLogger
 from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
-from src.trmeric_services.agents.functions.spend.spend_roadmap import roadmap_spend_controller
-from src.trmeric_services.agents.prompts.response import response_prompt_of_specific_function
+from src.services.agents.functions.spend.spend_roadmap import roadmap_spend_controller
+from src.services.agents.prompts.response import response_prompt_of_specific_function
 from .common import active_connections, agentController
 
 # List of functions that can be called from the frontend

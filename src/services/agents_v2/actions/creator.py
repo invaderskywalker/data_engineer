@@ -1,24 +1,23 @@
 
-from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
-from src.trmeric_services.project.projectService import ProjectService
-from src.trmeric_services.journal.Activity import activity_log, detailed_activity
+from src.services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
+from src.services.project.projectService import ProjectService
+from src.services.journal.Activity import activity_log
 import traceback
 from src.api.logging.AppLogger import appLogger, debugLogger
 import re
 import requests, json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.database.dao import RoadmapDao, TenantDao, TenantDaoV2, CustomerDao, ProjectsDao
-from src.trmeric_services.chat_service.utils import roadmapPersona, get_consolidated_persona_context_utils
-from src.trmeric_services.chat_service.Prompts import ideationCanvasPromptTrucible
+from src.database.dao import RoadmapDao, CustomerDao
+from src.services.chat_service.utils import roadmapPersona, get_consolidated_persona_context_utils
+from src.services.chat_service.Prompts import ideationCanvasPromptTrucible
 from src.ml.llm.Types import ModelOptions, ChatCompletion
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.utils.json_parser import extract_json_after_llm
-import pandas as pd
-from src.trmeric_services.agents.apis.service_assurance import ServiceAssuranceApis
+from src.services.agents.apis.service_assurance import ServiceAssuranceApis
 from src.database.Database import db_instance
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.trmeric_services.agents.functions.graphql_v2.analysis.roadmap_inference import infer_roadmap
-from src.trmeric_services.agents.functions.graphql_v2.utils.tenant_helper import is_knowledge_integrated
+from src.services.agents.functions.graphql_v2.analysis.roadmap_inference import infer_roadmap
+from src.services.agents.functions.graphql_v2.utils.tenant_helper import is_knowledge_integrated
 from src.utils.constants.project_status import PROJECT_STATUS_TYPE_TO_CODE, PROJECT_STATUS_VALUE_TO_CODE
 
 
@@ -778,9 +777,9 @@ class Creator:
         }
         
         try:
-            from src.trmeric_services.roadmap.RoadmapService import RoadmapService
+            from src.services.roadmap.RoadmapService import RoadmapService
             roadmapService = RoadmapService()
-            from src.trmeric_services.roadmap.Prompts import combined_roadmap_creation_prompt
+            from src.services.roadmap.Prompts import combined_roadmap_creation_prompt
             roadmapContext = roadmapPersona(tenant_id = self.tenant_id, user_id = self.user_id)
             org_strategy = roadmapContext.get("org_strategy", [])
             all_portfolios = RoadmapDao.fetchAllPortfolioOfTenant(tenant_id=self.tenant_id)
@@ -1259,7 +1258,7 @@ class Creator:
         }
         
         try:
-            from src.trmeric_services.idea_pad.IdeaPadService import IdeaPadService
+            from src.services.idea_pad.IdeaPadService import IdeaPadService
             idea_service = IdeaPadService()
             context = get_consolidated_persona_context_utils(tenant_id = self.tenant_id, user_id = self.user_id, chat_type= 6)
             

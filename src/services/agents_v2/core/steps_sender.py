@@ -1,5 +1,4 @@
 import threading
-import time
 
 class SocketStepsSender:
     def __init__(self, agent_name, socketio, client_id):

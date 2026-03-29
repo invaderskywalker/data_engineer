@@ -1,20 +1,17 @@
-import src.trmeric_services.tango.functions.Types
-from src.trmeric_services.tango.functions.integrations.general.GeneralIntegration import GeneralIntegration
-from src.trmeric_services.tango.functions.integrations.internal.TrmericIntegration import TrmericIntegration
-from src.trmeric_services.tango.functions.integrations.jira.JiraIntegration import JiraIntegration
-from src.trmeric_services.tango.functions.integrations.office.OfficeIntegration import OfficeIntegration
-from src.trmeric_services.tango.functions.integrations.drive.DriveIntegration import DriveIntegration
-from src.trmeric_services.tango.functions.integrations.internal.UploadedFiles import UploadedFiles
-from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-from src.trmeric_integrations.jira import DeprecatedJiraAPI
-from src.trmeric_services.tango.functions.integrations.microsoft_ado.MicrosoftAdoIntegration import MicrosoftAdoIntegration
+from src.services.tango.functions.integrations.general.GeneralIntegration import GeneralIntegration
+from src.services.tango.functions.integrations.internal.TrmericIntegration import TrmericIntegration
+from src.services.tango.functions.integrations.jira.JiraIntegration import JiraIntegration
+from src.services.tango.functions.integrations.office.OfficeIntegration import OfficeIntegration
+from src.services.tango.functions.integrations.drive.DriveIntegration import DriveIntegration
+from src.services.tango.functions.integrations.internal.UploadedFiles import UploadedFiles
+from src.services.tango.types.TangoIntegration import TangoIntegration
+from src.services.tango.functions.integrations.microsoft_ado.MicrosoftAdoIntegration import MicrosoftAdoIntegration
 from src.api.types.TabularData import TabularData
 import traceback
-from src.trmeric_services.tango.functions.integrations.slack.SlackIntegration import (
+from src.services.tango.functions.integrations.slack.SlackIntegration import (
     SlackIntegration)
 
 
-from src.api.logging.AppLogger import appLogger
 
 
 IntegrationMap = {

@@ -2,13 +2,10 @@
 
 from src.utils.helper.decorators import log_function_io_and_time
 from src.utils.types.getter import *
-from src.api.logging.AppLogger import appLogger, debugLogger
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import concurrent.futures
-import traceback
-from src.utils.helper.event_bus import Event, event_bus
+from src.api.logging.AppLogger import appLogger
+from src.utils.helper.event_bus import event_bus
 from src.database.ai_dao import AIDAOInterpreter, AIDAOExecutor
-from src.database.dao import ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, AgentRunDAO
+from src.database.dao import ProjectsDao, IdeaDao, AgentRunDAO
 from datetime import datetime
 
 from src.database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService
@@ -17,7 +14,7 @@ import inspect
 from src.s3.s3 import S3Service
 from src.database.ai_dao.configurable_dao_v3 import ConfigurableDAO, DAOConfigLoader
 from src.database.Database import db_instance
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 FOLLOW_UP_INSTRUCTION = """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

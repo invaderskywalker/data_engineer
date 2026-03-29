@@ -1,7 +1,7 @@
 
 
 import tiktoken
-from typing import Any, List, Optional, Dict, Iterable
+from typing import Any, Optional, Dict, Iterable
 import json
 import pandas as pd
 import numpy as np

@@ -1,4 +1,3 @@
-from typing import Dict
 from src.api.logging.AppLogger import appLogger
 import traceback
 from src.utils.helper.common import MyJSON
@@ -92,7 +91,7 @@ class ContextBuilder:
                 """
 
             elif section_name == "accessible_portfolios":
-                from src.trmeric_services.agents import PortfolioApiService
+                from src.services.agents import PortfolioApiService
                 portfolio_data = PortfolioApiService().get_portfolio_context_of_user(
                     user_id=self.user_id, tenant_id=self.tenant_id
                 )

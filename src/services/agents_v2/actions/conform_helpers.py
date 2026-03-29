@@ -3,13 +3,11 @@ Helper functions for conforming mapped data to schema requirements using LLM.
 Used by both sheet_mapper_v2.py and text_mapper.py.
 """
 
-import json
 from src.api.logging.AppLogger import debugLogger
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.utils.json_parser import extract_json_after_llm
 from src.utils.helper.common import MyJSON
-from ..schema import SCHEMAS
 
 DEFAULT_MODEL = "gpt-4.1"
 DEFAULT_TEMPERATURE = 0.1

@@ -1,5 +1,5 @@
 from src.database.Database import db_instance
-from src.utils.enums import AuthRoles,ALL_ROLES
+from src.utils.enums import ALL_ROLES
 from .auth import AuthDao
 from src.utils.constants.base import PORTFOLIO_ATTRIBUTE_MAP
 

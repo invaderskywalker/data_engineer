@@ -1,29 +1,27 @@
-from src.trmeric_services.tango.sessions.InsertTangoData import TangoDataInserter
-from src.trmeric_services.tango.sessions.SessionManager import TangoSessionManager
-from src.trmeric_services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
-from src.trmeric_services.summarizer.SummarizerService import SummarizerService
+from src.services.tango.sessions.InsertTangoData import TangoDataInserter
+from src.services.tango.sessions.SessionManager import TangoSessionManager
+from src.services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
+from src.services.summarizer.SummarizerService import SummarizerService
 
 from src.api.logging.AppLogger import appLogger
 from src.api.logging.CreateLogResponse import createLogResponseBody
-from flask import Flask, Response, jsonify, request
+from flask import Response, jsonify, request
 from src.api.logging.LogResponseInfo import logResponseInfo
 import time
-import datetime
 import threading
 import traceback
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.models.OpenAIClient import ModelOptions
 from src.utils.json_parser import extract_json_after_llm
-from src.trmeric_services.tango.prompts.CompanyDetails import getCompanyDetailsPrompt
+from src.services.tango.prompts.CompanyDetails import getCompanyDetailsPrompt
 from src.database.dao import TangoDao
-from src.trmeric_services.agents.functions.onbaording_v2 import fetch_uploaded_file
-from src.trmeric_services.journal.ActivityEndpoints import summarize_user_activity
+from src.services.agents.functions.onbaording_v2 import fetch_uploaded_file
+from src.services.journal.ActivityEndpoints import summarize_user_activity
 
-from src.trmeric_services.reinforcement.core import ReinforcementLearning
-from src.trmeric_services.agents.functions.businesscase_agent.controller import BusinessTemplateAgent
-from src.trmeric_services.agents.functions.solution_agent.controller import SolutionAgent
+from src.services.reinforcement.core import ReinforcementLearning
+from src.services.agents.functions.businesscase_agent.controller import BusinessTemplateAgent
+from src.services.agents.functions.solution_agent.controller import SolutionAgent
 from threading import Lock
-from src.ws.static import UserSocketMap
 
 
 class TangoController:

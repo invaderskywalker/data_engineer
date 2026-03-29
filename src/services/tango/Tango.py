@@ -1,18 +1,16 @@
-import sys
-import os
 import datetime
-from src.trmeric_services.tango.types.TangoConversation import TangoConversation
-from src.database.Database import db_instance, TrmericDatabase
+from src.services.tango.types.TangoConversation import TangoConversation
+from src.database.Database import db_instance
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ModelOptions
-from src.trmeric_services.tango.functions.FunctionCaller import TangoFunctionCaller
-from src.trmeric_services.tango.prompts.TangoResponse import getTangoPrompt
-from src.trmeric_services.tango.sessions.InsertTangoData import TangoDataInserter
-from src.trmeric_services.tango.sessions.TangoConversationRetriever import (
+from src.services.tango.functions.FunctionCaller import TangoFunctionCaller
+from src.services.tango.prompts.TangoResponse import getTangoPrompt
+from src.services.tango.sessions.InsertTangoData import TangoDataInserter
+from src.services.tango.sessions.TangoConversationRetriever import (
     TangoConversationRetriever,
 )
-from src.trmeric_services.tango.utils.InitializeIntegrations import createIntegrations
-from src.trmeric_services.tango.utils.FetchAvailableIntegrations import fetchAvailableIntegrations
+from src.services.tango.utils.InitializeIntegrations import createIntegrations
+from src.services.tango.utils.FetchAvailableIntegrations import fetchAvailableIntegrations
 from src.utils.PresidioAnonymizer import PresidioAnonymizer
 from src.utils.fuzzySearch import *
 from src.api.logging.AppLogger import appLogger
@@ -21,11 +19,8 @@ from src.database.dao.roadmap import RoadmapDao
 from fuzzywuzzy import fuzz
 import re
 import uuid
-from src.api.types.TabularData import TabularData
-from src.trmeric_services.summarizer.SummarizerService import SummarizerService
 import traceback
 import time 
-from src.trmeric_services.tango.prompts.CodeGenerationTemplate import getCodeGenerationPrompt
 from src.utils.anonymizer import Anonymizer
 from src.ml.llm.Types import ChatCompletion
 

@@ -1,6 +1,4 @@
-import json
 import traceback
-from typing import Dict
 from src.api.logging.AppLogger import appLogger
 from src.database.dao import TenantDaoV2, FileDao, ProviderDao, TenantDao
 

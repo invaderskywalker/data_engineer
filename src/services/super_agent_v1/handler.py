@@ -1,5 +1,5 @@
-from src.trmeric_services.agents.core import AgentRegistry
-from src.trmeric_services.tango.sessions.InsertTangoData import TangoDataInserter
+from src.services.agents.core import AgentRegistry
+from src.services.tango.sessions.InsertTangoData import TangoDataInserter
 from .runner import AgentsRunner
 
 

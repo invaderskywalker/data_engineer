@@ -1,5 +1,4 @@
 from flask import request
-import json
 import traceback
 from src.api.logging.AppLogger import appLogger
 from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start

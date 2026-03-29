@@ -7924,7 +7924,7 @@ The output should be immediately savable as an .html file and openable in any br
 
 
 
-# In src/trmeric_services/super_agent_v1/core/const.py (or prompt.py)
+# In src/services/super_agent_v1/core/const.py (or prompt.py)
 
 IDENTIFY_SECTIONS_SYSTEM_PROMPT = """
 You are a STRUCTURE IDENTIFICATION ENGINE for DEEP RESEARCH.

@@ -1,5 +1,4 @@
 from flask import request
-from src.api.logging.TimingLogger import log_event_start
 from src.database.dao import TangoDao
 from .common import active_connections, agentController
 from src.api.logging.ProgramState import ProgramState

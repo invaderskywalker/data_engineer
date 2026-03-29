@@ -1,29 +1,28 @@
-from typing import Dict, List, Optional, get_origin, get_args
+from typing import Dict, List
 from src.api.logging.AppLogger import appLogger, debugLogger
 from .steps_sender import SocketStepsSender
-from src.database.dao import FileDao
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ModelOptions, ChatCompletion
 from .data_getters import DataGetters
 from .actions import DataActions
 from .context_builder import ContextBuilder
 from datetime import datetime
-from src.database.dao import TenantDaoV2, TangoDao
+from src.database.dao import TangoDao
 from src.utils.json_parser import extract_json_after_llm
 from ..helper.common import MyJSON
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import traceback
 import re
-from src.trmeric_services.agents.functions.roadmap_analyst.queries import get_recent_queries
+from src.services.agents.functions.roadmap_analyst.queries import get_recent_queries
 from ..helper.decorators import log_function_io_and_time
 from ..helper.event_bus import Event, event_bus
 from src.ws.static import TangoBreakMapUser
 from .func_utils import fetch_function_defaults, fetch_function_definitions
 
-from src.trmeric_services.agents.reports.customers.pf.monthly_savings import (
+from src.services.agents.reports.customers.pf.monthly_savings import (
     monthly_savings_report_with_graph_prompt
 )
-from src.trmeric_services.agents.functions.roadmap_analyst.response_prompts import create_transformation_report_prompt, portfolio_snapshot_prompt, performance_snapshot_prompt, business_value_report_prompt, risk_report_prompt
+from src.services.agents.functions.roadmap_analyst.response_prompts import create_transformation_report_prompt, portfolio_snapshot_prompt, performance_snapshot_prompt, business_value_report_prompt, risk_report_prompt
 
 # Constants
 DEFAULT_MODEL = "gpt-4.1"

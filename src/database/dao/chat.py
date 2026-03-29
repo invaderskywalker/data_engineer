@@ -1,10 +1,3 @@
-from peewee import (
-    CharField,
-    TextField,
-    IntegerField,
-    DateTimeField,
-    SmallIntegerField,
-)
 from src.database.models.chat import ChatModel
 
 

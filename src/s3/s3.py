@@ -1,8 +1,6 @@
 import os
 import boto3
 from io import BytesIO
-from docx import Document  
-import fitz  
 import pandas as pd  
 from olefile import OleFileIO  
 from src.api.logging.AppLogger import appLogger
@@ -14,7 +12,6 @@ import docx2txt
 from PIL import Image
 import base64
 from io import BytesIO
-import pytesseract
 
 
 
@@ -139,9 +136,10 @@ class S3Service:
     def ocr_image_to_text(self, binary):
         """Extracts text from an image using OCR."""
         try:
-            img = Image.open(BytesIO(binary))
-            text = pytesseract.image_to_string(img)
-            return text.strip()
+            return ""
+            # img = Image.open(BytesIO(binary))
+            # text = pytesseract.image_to_string(img)
+            # return text.strip()
         except Exception as e:
             print(f"OCR failed: {e}")
             return ""
@@ -159,7 +157,7 @@ class S3Service:
         This is a VISUAL INTERPRETATION layer.
         Output is descriptive context, not factual truth.
         """
-        from src.ml.llm.Types import ChatCompletion, ModelOptions
+        from src.ml.llm.Types import ModelOptions
         from src.ml.llm.models.OpenAIClient import ChatGPTClient
         llm = ChatGPTClient()
         self.log_info = None

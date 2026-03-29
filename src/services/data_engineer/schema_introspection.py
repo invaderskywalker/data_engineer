@@ -8,7 +8,6 @@ schema_json dict ready to be stored in de_schema_snapshots.
 import traceback
 import psycopg2
 import psycopg2.extras
-from typing import Optional
 
 from src.api.logging.AppLogger import appLogger
 

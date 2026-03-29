@@ -1,6 +1,5 @@
-from ..schema import SCHEMAS
-from src.trmeric_services.agents.functions.roadmap_analyst.analyst import ROADMAP_SCHEMA
-from src.trmeric_services.agents.functions.roadmap_analyst.project_analyst import PROJECT_SCHEMA
+from src.services.agents.functions.roadmap_analyst.analyst import ROADMAP_SCHEMA
+from src.services.agents.functions.roadmap_analyst.project_analyst import PROJECT_SCHEMA
 
 
 CONFIG = {

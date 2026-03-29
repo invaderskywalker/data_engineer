@@ -6,14 +6,9 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from src.ml.llm.Client import LLMClient
 from src.api.logging.AppLogger import appLogger, debugLogger
-from src.database.dao import TangoDao
 from src.api.logging.LLMLogger import log_llm_response
 from src.utils.json_parser import extract_json_after_llm
 from src.ml.llm.Types import ChatCompletion, ModelOptions,ModelOptions2, MODEL_REGISTRY,OpenAIParamBuilder
-from src.ml.llm.utils.reinforcement import _optimize_prompt
-from src.ml.llm.utils.parsing_response import ModelOutputFormat
-from src.trmeric_services.reinforcement import core, engine, feedback, policy
-import time
 
 
 load_dotenv()
@@ -24,136 +19,8 @@ class ChatGPTClient(LLMClient):
     def __init__(self, user_id=None, tenant_id=None):
         super().__init__("chatgpt", user_id=user_id, tenant_id=tenant_id)
         self.openai = OpenAI(api_key=os.getenv("OPENAI_KEY"))
-        self.rl = core.ReinforcementLearning()
-        self.policy_optimizer = policy.PolicyOptimizer()
         self.user_id = user_id
         self.tenant_id = tenant_id
-
-    def run_rl(
-        self,
-        chat: ChatCompletion = None,
-        options: ModelOptions = None,
-        agent_name: str = None,
-        function_name: str = None,
-        logInDb: dict = None,
-        streaming: bool = False,
-        **kwargs
-    ):
-        """
-        Execute LLM with RL-optimized prompt and parameters.
-        """
-        try:
-            socketio = kwargs.get("socketio", None)
-            client_id = kwargs.get("client_id", None)
-            timer_id = super().run(chat, options, function_name, logInDb)
-            
-            #Naming convention for function
-            # section::subsection::feature_name
-            feature_name = function_name.split("::")[-1]
-            section = function_name.split("::")[0] 
-            if section not in ["roadmap_scope","roadmap_solution"]:
-                section = None
-            subsection = function_name.split("::")[1] if len(function_name.split("::"))>2 else None
-
-            print("--debug section subsection feature_name-----",section,subsection,feature_name)
-
-            tenant_id = logInDb.get("tenant_id") if logInDb else self.tenant_id
-            user_id = logInDb.get('user_id') if logInDb else self.user_id
-
-            # Get optimized parameters
-            print("--debug PARAMS BEFORE-----",options,options.model,options.max_tokens,options.temperature)
-            optimized_options = self.policy_optimizer.get_optimized_params(tenant_id, agent_name, feature_name, options,section=section,subsection=subsection, user_id=user_id)
-            print("--debug OPTIMIZED PARAMS-----",optimized_options,optimized_options.model,optimized_options.max_tokens,optimized_options.temperature)
-            
-            # Format chat messages with dynamic prompt injection in **User Prompt**
-            formatted_chat = chat.format()
-            user_prompt = _optimize_prompt(
-                raw_prompt=formatted_chat["user"],
-                tenant_id=tenant_id,
-                agent_name=agent_name,
-                feature_name=feature_name,
-                section = section,
-                subsection = subsection,
-                streaming = streaming,
-                user_id = user_id,
-            )
-            
-            messages = [{"role": "system", "content": formatted_chat["system"]}]
-            for message in formatted_chat["prev"]:
-                messages.append({"role": "assistant", "content": message["assistant"]})
-                messages.append({"role": "user", "content": message["user"]})
-            messages.append({"role": "user", "content": user_prompt})
-            
-            prompt_token_count = self.count_tokens(messages, optimized_options.model)
-            print(f"\n\nToken count: {prompt_token_count}, \n--deubg user_prompt-----", user_prompt[-100:])
-
-            completion_token_count = 0
-            full_response = ""
-            print(f"Running LLM call with streaming: {streaming}")
-            response = self.openai.chat.completions.create(
-                model=optimized_options.model,
-                messages=messages,
-                max_tokens=optimized_options.max_tokens,
-                temperature=optimized_options.temperature,
-                stream= streaming,
-            )
-            # Run LLM
-            if streaming:
-                # move the streaming logic into an inner generator function, so the outer function is no longer a generator.
-                def stream_generator():
-                    full_response = ""
-                    completion_token_count = 0
-                    counter = 0
-                    try:
-                        for chunk in response:
-                            try:
-                                content_chunk = chunk.choices[0].delta.content
-                                if content_chunk:
-                                    if len(content_chunk) > 100 and content_chunk.isspace():
-                                        counter += 1
-                                        if counter >= 100:
-                                            raise Exception("GPT failed to send proper output: keeps sending spaces")
-                                        continue
-
-                                    full_response += content_chunk
-
-                                    try:
-                                        enc = tiktoken.encoding_for_model(options.model)
-                                    except KeyError:
-                                        enc = tiktoken.get_encoding("cl100k_base")
-                                    completion_token_count += len(enc.encode(content_chunk))
-                                    yield content_chunk
-                            except (KeyError, AttributeError, TypeError) as parse_err:
-                                self._handle_error(timer_id, parse_err, prompt_token_count, function_name, "stream_chunk", socketio, client_id)
-                                continue
-                    finally:
-                        print("Stream completed")
-                        self._log_db_stats(
-                            logInDb,
-                            function_name,
-                            options.model,
-                            completion_token_count + prompt_token_count,
-                            prompt_token_count,
-                            completion_token_count,
-                        )
-
-                return stream_generator()
-            else: ##### Streaming
-                response_content = response.choices[0].message.content
-                self._log_db_stats(
-                    logInDb,
-                    function_name,
-                    response.model,
-                    response.usage.total_tokens,
-                    response.usage.prompt_tokens,
-                    response.usage.completion_tokens,
-                )
-                return response_content
-
-        except Exception as e:
-            appLogger.error({"event": "run_RL","error": str(e),"streaming": streaming,"traceback": traceback.format_exc()})
-            self._handle_error(timer_id, e, prompt_token_count, function_name, "run_RL",socketio,client_id)
-            raise
 
     # Helper method to enhance system prompt with memory and web search in parallel
     def _enhance_system_prompt(self, chat, memory, web, web_user):
@@ -277,15 +144,15 @@ class ChatGPTClient(LLMClient):
                 self.tenant_id = logInDb.get("tenant_id")
             if not self.user_id:
                 self.user_id = logInDb.get("user_id")
-            res = TangoDao.createEntryInStats(
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-                function_name=function_name,
-                model_name=model_name,
-                total_tokens=total_tokens,
-                prompt_tokens=prompt_tokens,
-                completion_tokens=completion_tokens,
-            )
+            # res = TangoDao.createEntryInStats(
+            #     tenant_id=self.tenant_id,
+            #     user_id=self.user_id,
+            #     function_name=function_name,
+            #     model_name=model_name,
+            #     total_tokens=total_tokens,
+            #     prompt_tokens=prompt_tokens,
+            #     completion_tokens=completion_tokens,
+            # )
             # print("_log_db_stats res: ", res)
             # return True
         except Exception as e:
@@ -492,7 +359,7 @@ class ChatGPTClient(LLMClient):
         return "\n\n Here are some potentially helpful user insights :\n\n" + final_insights
 
     def webUpdatedSystemPrompt(self, system, web_user, user=None):
-        from src.trmeric_services.phoenix.nodes.web_search import WebSearchNode
+        from src.services.phoenix.nodes.web_search import WebSearchNode
 
         system_prompt = """
         You are given a user's system prompt to an AI agent. Your job is to extract relevant questions 

@@ -1,8 +1,6 @@
 from src.ml.llm.Types import ChatCompletion, ModelOptions
-from src.ml.llm.utils.parsing_response import ModelOutputFormat
-from src.api.logging.LLMLogger import log_llm_request, log_llm_response
+from src.api.logging.LLMLogger import log_llm_request
 from src.api.logging.AppLogger import appLogger
-import traceback
 
 class LLMClient:
     def __init__(self, model_name, user_id=None, tenant_id=None):

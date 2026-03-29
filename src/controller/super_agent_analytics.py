@@ -1,7 +1,6 @@
 from flask import request, jsonify
 from datetime import datetime, timedelta
 import traceback
-from typing import Optional, Dict, Any, List
 
 from src.database.Database import db_instance
 from src.api.logging.AppLogger import appLogger

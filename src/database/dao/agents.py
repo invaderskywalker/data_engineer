@@ -1,10 +1,8 @@
 import json
-import psycopg2.extras
 from typing import List, Dict, Optional, Any
-from datetime import datetime
 from src.database.Database import db_instance
 from src.utils.helper.common import MyJSON
-from src.api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
 
 

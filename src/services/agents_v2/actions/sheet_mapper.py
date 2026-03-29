@@ -1,5 +1,4 @@
 import pandas as pd
-import logging
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.utils.json_parser import extract_json_after_llm

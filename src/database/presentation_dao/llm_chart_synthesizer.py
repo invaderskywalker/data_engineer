@@ -12,7 +12,7 @@
 
 import json
 import traceback
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from src.api.logging.AppLogger import appLogger
 from src.ml.llm.models.OpenAIClient import ChatGPTClient

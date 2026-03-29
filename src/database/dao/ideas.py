@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict
 from src.database.Database import db_instance
 from src.api.logging.AppLogger import appLogger
 

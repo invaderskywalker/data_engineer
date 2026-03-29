@@ -1,7 +1,7 @@
 
 
 from src.database.ai_dao import DAO_REGISTRY
-from typing import Dict, Any, List, Generator
+from typing import Dict, Any
 from src.utils.helper.common import MyJSON
 
 def build_llm_schema_summary(manifest: Dict[str, Any]) -> Dict[str, Any]:

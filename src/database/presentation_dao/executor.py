@@ -1,6 +1,6 @@
 # src/database/presentation_dao/executor.py
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from src.utils.helper.decorators import log_function_io_and_time
 from src.utils.helper.common import MyJSON
 

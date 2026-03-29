@@ -1,5 +1,4 @@
 import pandas as pd
-import io
 import traceback
 from typing import Optional, Dict, Tuple
 from src.api.logging.AppLogger import appLogger

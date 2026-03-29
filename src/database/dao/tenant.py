@@ -1,4 +1,4 @@
-from typing import Dict,List
+from typing import List
 from src.api.logging.AppLogger import appLogger
 from src.utils.constants.base import AUDIT_LOG_MAP
 from src.database.Database import db_instance,TrmericDatabase

@@ -1,12 +1,12 @@
 
 
-from src.trmeric_services.tango.functions.Types import TrmericIntegration
-from src.trmeric_services.tango.functions.integrations.general import GeneralIntegration
-from src.trmeric_services.tango.functions.integrations.jira import JiraIntegration
-from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-from src.trmeric_services.tango.functions.integrations.slack.SlackIntegration import SlackIntegration
-from src.trmeric_services.tango.functions.integrations.office.OfficeIntegration import OfficeIntegration
-from src.trmeric_services.tango.functions.integrations.drive.DriveIntegration import DriveIntegration
+from src.services.tango.functions.Types import TrmericIntegration
+from src.services.tango.functions.integrations.general import GeneralIntegration
+from src.services.tango.functions.integrations.jira import JiraIntegration
+from src.services.tango.types.TangoIntegration import TangoIntegration
+from src.services.tango.functions.integrations.slack.SlackIntegration import SlackIntegration
+from src.services.tango.functions.integrations.office.OfficeIntegration import OfficeIntegration
+from src.services.tango.functions.integrations.drive.DriveIntegration import DriveIntegration
 
 
 class IntegrationRetriever:

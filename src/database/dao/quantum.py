@@ -1,5 +1,4 @@
 from src.database.Database import db_instance
-from collections import defaultdict
 from src.api.logging.AppLogger import appLogger
 
 

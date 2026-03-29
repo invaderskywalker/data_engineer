@@ -7,7 +7,7 @@ from src.database.dao import TangoDao, UsersDao
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.utils.json_parser import extract_json_after_llm
 from src.ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
+from src.services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
 
 INTENT_HINTS = {
     "Goal": "(directional focus – may influence prioritization and reflection)",

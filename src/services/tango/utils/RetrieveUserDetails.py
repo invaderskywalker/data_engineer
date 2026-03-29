@@ -1,5 +1,5 @@
 from src.database.Database import TrmericDatabase
-# from src.trmeric_services.tango.utils.FormatJsonifiedData import formatSQLData
+# from src.services.tango.utils.FormatJsonifiedData import formatSQLData
 from src.utils.FormatJsonifiedData import formatSQLData
 
 

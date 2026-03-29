@@ -1,7 +1,6 @@
 import boto3
 import json
 from src.ml.llm.Client import LLMClient
-from src.ml.llm.Types import ChatCompletion
 
 
 class Bedrock(LLMClient):

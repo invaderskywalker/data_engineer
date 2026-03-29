@@ -1,4 +1,4 @@
-from peewee import PostgresqlDatabase, Model
+from peewee import Model
 from src.database.Database import db_instance
 
 

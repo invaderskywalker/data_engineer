@@ -3,26 +3,22 @@ from src.api.logging.AppLogger import appLogger, debugLogger
 import traceback
 import pandas as pd
 import json
-import re
 from datetime import datetime
-from src.database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
-from src.trmeric_services.journal.Activity import activity_log, detailed_activity
+from src.database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
+from src.services.journal.Activity import detailed_activity
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
 from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.utils.json_parser import extract_json_after_llm
-from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
-from src.trmeric_services.project.projectService import ProjectService
-from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
+from src.services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
 from ..helper.event_bus import event_bus
 from ..schema import SCHEMAS
 from ..actions.sheet_mapper_v2 import create_mapping
 from ..actions.text_mapper import create_text_mapping
-from ..actions.creator import Creator
 from src.s3.s3 import S3Service
 from ..config.actions import *
 from ..helper.file_analyser import FileAnalyzer
 from src.s3.s3 import S3Service
-from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
+from src.services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..helper.decorators import log_function_io_and_time
 from src.ws.static import UserSocketMap
@@ -30,7 +26,7 @@ from src.api.logging.ProgramState import ProgramState
 from src.utils.api import ApiUtils
 from src.database.dao import JobDAO
 import uuid
-from src.trmeric_services.agents_v2.actions.file_template import store_template_file,create_template_mapping
+from src.services.agents_v2.actions.file_template import store_template_file,create_template_mapping
 
 class DataActions:
     """
@@ -267,7 +263,7 @@ class DataActions:
 
                 if "kpi" in content_type.lower() or "strateg" in content_type.lower() or "priorit" in content_type.lower():
                     print("--debug start _add_portfolio_info---------------------")
-                    from src.trmeric_services.chat_service.controller.portfolio import _add_portfolio_info
+                    from src.services.chat_service.controller.portfolio import _add_portfolio_info
                     model_options = ModelOptions("gpt-4.1", 3000, 0.1)
                     res = _add_portfolio_info(content_type,portfolio_id,content,self.llm,self.logInfo,model_options)
                     print("--debug resportolio----", res)

@@ -1,17 +1,14 @@
-from src.ml.llm.Client import LLMClient
 from src.ml.llm.models import OpenAIClient
 import re
 from src.ml.llm.Types import ModelOptions
-from src.trmeric_services.tango.types.TangoConversation import TangoConversation
+from src.services.tango.types.TangoConversation import TangoConversation
 from src.database.Database import TrmericDatabase
-from src.trmeric_services.tango.functions.Executor import Executor
-from src.trmeric_services.tango.prompts.CodeGenerationTemplate import (
+from src.services.tango.functions.Executor import Executor
+from src.services.tango.prompts.CodeGenerationTemplate import (
     getCodeGenerationPrompt,
 )
-from src.trmeric_services.tango.sessions.InsertTangoData import TangoDataInserter
-from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-import datetime
-from src.api.logging.AppLogger import appLogger
+from src.services.tango.sessions.InsertTangoData import TangoDataInserter
+from src.services.tango.types.TangoIntegration import TangoIntegration
 
 
 class TangoFunctionCaller:

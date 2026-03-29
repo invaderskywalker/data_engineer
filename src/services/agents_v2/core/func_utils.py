@@ -1,13 +1,12 @@
 
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 import inspect
 import copy
 from pydantic import BaseModel
 from dataclasses import is_dataclass, asdict
 from enum import Enum
 from typing import get_origin, get_args
-from ..helper.common import MyJSON
 
 def fetch_function_definitions(fn_map: Dict, fn_names: List[str]) -> str:
     """

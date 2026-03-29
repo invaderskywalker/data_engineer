@@ -1,31 +1,27 @@
-import json
 import traceback
-import pandas as pd
 import concurrent.futures
 from ..config.getter import *
 from typing import Dict, Optional, List
-from datetime import datetime, timedelta
 from ..helper.file_analyser import FileAnalyzer
-from ..helper.event_bus import Event, event_bus
+from ..helper.event_bus import event_bus
 from src.database.Database import db_instance
 from ..helper.decorators import log_function_io_and_time
-from src.trmeric_services.phoenix.nodes import WebSearchNode
+from src.services.phoenix.nodes import WebSearchNode
 from src.utils.web.CompanyScraper import CompanyInfoScraper
 from src.api.logging.AppLogger import appLogger, debugLogger
-from src.trmeric_services.journal.ActivityEndpoints import get_user_session_summaries_by_timeframe
-from src.trmeric_services.integration.helpers.jira_on_prem_getter import fetch_filtered_integration_data
+from src.services.journal.ActivityEndpoints import get_user_session_summaries_by_timeframe
+from src.services.integration.helpers.jira_on_prem_getter import fetch_filtered_integration_data
 from src.database.dao import TenantDaoV2, TenantDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, CommonDao
 # Placeholder imports for new functions (update these as needed)
 
-from src.trmeric_services.tango.functions.integrations.internal.providers import get_provider_data, get_quantum_data
-from src.trmeric_services.tango.functions.integrations.internal.prompts.GetPortfoliosSnapshot import view_portfolio_snapshot
-from src.trmeric_services.tango.functions.integrations.internal.prompts.ViewRiskSnapshot import view_risk_report_current_quarter
-from src.trmeric_services.tango.functions.integrations.internal.prompts.ViewValueSnapshot import view_value_snapshot_last_quarter
-from src.trmeric_services.tango.functions.integrations.internal.prompts.ViewPerformanceSnapshot import view_performance_snapshot_last_quarter
-from src.trmeric_services.agents.functions.roadmap_analyst import getIntegrationData, TrmericVectorSearch, RoadmapAgent, ProjectAgent, view_combined_analysis
-from src.trmeric_services.agents.reports.customers.pf.monthly_savings import (
-    fetchDataForMonthlySavingsAndAnalysis, 
-    monthly_savings_report_with_graph_prompt
+from src.services.tango.functions.integrations.internal.providers import get_provider_data, get_quantum_data
+from src.services.tango.functions.integrations.internal.prompts.GetPortfoliosSnapshot import view_portfolio_snapshot
+from src.services.tango.functions.integrations.internal.prompts.ViewRiskSnapshot import view_risk_report_current_quarter
+from src.services.tango.functions.integrations.internal.prompts.ViewValueSnapshot import view_value_snapshot_last_quarter
+from src.services.tango.functions.integrations.internal.prompts.ViewPerformanceSnapshot import view_performance_snapshot_last_quarter
+from src.services.agents.functions.roadmap_analyst import getIntegrationData, TrmericVectorSearch, RoadmapAgent, ProjectAgent
+from src.services.agents.reports.customers.pf.monthly_savings import (
+    fetchDataForMonthlySavingsAndAnalysis
 )
 
 

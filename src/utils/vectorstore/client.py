@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, List, Optional
+from typing import Dict, List
 from src.api.logging.AppLogger import appLogger
 import os
 

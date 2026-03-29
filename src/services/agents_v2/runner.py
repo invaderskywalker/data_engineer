@@ -2,7 +2,7 @@
 # from .classes import ALL_AGENTS_V2
 from src.api.logging.AppLogger import appLogger, debugLogger
 from src.database.dao import TangoDao
-from src.trmeric_services.phoenix.prompts import ChatTitlePrompt
+from src.services.phoenix.prompts import ChatTitlePrompt
 from .config import CONFIG_MAP
 from src.utils.json_parser import extract_json_after_llm
 import threading

@@ -2,9 +2,6 @@
 # pylint: disable=missing-module-docstring
 
 from typing import Dict
-from src.trmeric_services.tango.sessions.TangoConversationRetriever import (
-    TangoConversationRetriever,
-)
 from src.ws.helper import SocketStepsSender
 from .handler import AgentsHandler
 

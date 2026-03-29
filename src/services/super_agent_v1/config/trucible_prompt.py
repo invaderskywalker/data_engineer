@@ -1,6 +1,6 @@
 
 from src.utils.helper.common import MyJSON
-from src.trmeric_services.agents_v2.schema import SCHEMAS
+from src.services.agents_v2.schema import SCHEMAS
 
 TRUCIBLE_SYSTEM_PROMPT = """
 You are Trucible, an intelligent enterprise context builder for Trmeric.

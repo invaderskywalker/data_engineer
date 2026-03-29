@@ -1,4 +1,4 @@
-from src.trmeric_services.tango.functions.integrations.general.ClarifyingQuestionFunction import ask_clarifying_question
+from src.services.tango.functions.integrations.general.ClarifyingQuestionFunction import ask_clarifying_question
 
 class ReturnQuestion:
     def __init__(self, question:str):

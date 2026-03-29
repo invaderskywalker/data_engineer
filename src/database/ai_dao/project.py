@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from src.database.Database import db_instance
 from src.api.logging.AppLogger import appLogger
-from src.database.dao import ProjectsDao
-from typing import List, Dict, Any, Optional, Tuple, Union
-from datetime import date
+from typing import List, Dict, Any, Optional, Union
 from .intel import FieldIntel
 from .base import BaseDAOQueryBuilder
 

@@ -2,7 +2,7 @@ from functools import wraps
 from datetime import datetime
 import time
 from typing import Callable, Any
-from src.api.logging.AppLogger import appLogger, fn_io_timer_logger
+from src.api.logging.AppLogger import fn_io_timer_logger
 import traceback
 
 from typing import Callable, TypeVar, ParamSpec

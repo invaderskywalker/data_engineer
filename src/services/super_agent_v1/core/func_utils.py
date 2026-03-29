@@ -1,6 +1,6 @@
 
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 import inspect
 import copy
 from pydantic import BaseModel

@@ -1,8 +1,6 @@
 # web_search.py
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-from urllib.parse import parse_qs, urlparse
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading

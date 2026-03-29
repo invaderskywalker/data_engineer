@@ -1,13 +1,11 @@
 import re
-import uuid
 import json
 import traceback
-from typing import List, Dict
+from typing import Dict
 from datetime import datetime
 from src.database.dao import db_instance
-from src.utils.json_parser import extract_json_after_llm
 from src.ml.llm.Types import ChatCompletion, ModelOptions
-from src.api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger
 from src.utils.fuzzySearch import squeeze_text
 
 MODEL_OPTS =  ModelOptions(model="gpt-4.1",max_tokens=15000,temperature=0.1)

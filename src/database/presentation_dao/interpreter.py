@@ -5,7 +5,7 @@ from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.utils.json_parser import extract_json_after_llm
 from src.utils.helper.common import MyJSON
 from src.utils.helper.decorators import log_function_io_and_time
-from src.utils.helper.event_bus import Event, event_bus
+from src.utils.helper.event_bus import event_bus
 
 
 class PresentationInterpreter:

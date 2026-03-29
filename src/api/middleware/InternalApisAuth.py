@@ -1,5 +1,4 @@
 import time
-import jwt
 from flask import request
 from functools import wraps
 from src.api.logging.RequestLogger import requestLogger

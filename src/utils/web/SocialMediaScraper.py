@@ -3,12 +3,11 @@ import json
 import scrapy
 import urllib3
 import requests
-import warnings
 from bs4 import BeautifulSoup
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from scrapy.crawler import CrawlerProcess
 from playwright.sync_api import sync_playwright
-from urllib.parse import urljoin, urlparse, parse_qs
+from urllib.parse import urljoin, urlparse
 
 # Suppress SSL warnings (use cautiously, enable verification in production)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

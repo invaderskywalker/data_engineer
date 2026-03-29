@@ -1,5 +1,5 @@
 # src/database/ai_dao/base.py
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple
 
 class BaseDAOQueryBuilder:
     """Utility to standardize DAO query building with dynamic aggregation and nested filters."""

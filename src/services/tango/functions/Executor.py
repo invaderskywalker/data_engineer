@@ -1,17 +1,13 @@
 import json
 import ast
-import io
-import sys
 from src.database.Database import TrmericDatabase
-# from src.trmeric_services.tango.utils.FormatJsonifiedData import formatSQLData
-from src.utils.FormatJsonifiedData import formatSQLData
-from src.trmeric_services.tango.types.TangoConversation import TangoConversation
+# from src.services.tango.utils.FormatJsonifiedData import formatSQLData
+from src.services.tango.types.TangoConversation import TangoConversation
 # from src.ml.embeddings.VectorSearch import TrmericVectorSearch
 from src.ml.llm.Client import LLMClient
-import src.trmeric_services.tango.functions.Types
-from src.trmeric_services.tango.functions.IntegrationRetriever import IntegrationRetriever
-from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-from src.trmeric_services.tango.functions.Types import TangoFunction
+from src.services.tango.functions.IntegrationRetriever import IntegrationRetriever
+from src.services.tango.types.TangoIntegration import TangoIntegration
+from src.services.tango.functions.Types import TangoFunction
 import traceback
 
 class Executor:

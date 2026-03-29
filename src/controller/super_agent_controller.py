@@ -7,7 +7,6 @@ from src.api.logging.AppLogger import appLogger
 from src.s3.s3 import S3Service
 
 from flask import Response, request, jsonify
-from io import BytesIO
 
 def _cors_preflight_response():
     response = Response(status=200)

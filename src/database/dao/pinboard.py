@@ -1,4 +1,4 @@
-from src.database.Database import db_instance,TrmericDatabase
+from src.database.Database import db_instance
 
 
 class PinBoardDao:

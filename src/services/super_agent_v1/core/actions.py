@@ -1,49 +1,27 @@
-# src/trmeric_services/super_agent_v1/core/actions.py
+# src/services/super_agent_v1/core/actions.py
 
 
 from typing import Dict, Optional, List
-from src.api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
-import pandas as pd
-import json
 import re
 import base64
-from datetime import datetime
 from src.database.dao import AgentRunDAO, ProjectsDao, RoadmapDao, IntegrationDao, TenantDao, StatsDao
-from src.trmeric_services.journal.Activity import activity_log, detailed_activity
 from src.ml.llm.models.OpenAIClient import ChatGPTClient
-from src.ml.llm.Types import ChatCompletion, ModelOptions
-from src.utils.json_parser import extract_json_after_llm
-from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
-from src.trmeric_services.project.projectService import ProjectService
-from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
+from src.ml.llm.Types import ChatCompletion
 from src.utils.helper.event_bus import event_bus
 from src.s3.s3 import S3Service
 from src.utils.helper.file_analyser import FileAnalyzer
-from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
-from src.trmeric_services.agents.functions.graphql_v2.analysis.knowledge_functions import (
-    fetch_cluster_info as _fetch_cluster_info,
-    fetch_performance_analysis as _fetch_performance_analysis,
-    fetch_performance_landscape as _fetch_performance_landscape,
-    analyze_project_in_context as _analyze_project_in_context,
-    find_success_patterns as _find_success_patterns,
-)
+
 import os
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.utils.helper.decorators import log_function_io_and_time
-from src.ws.static import UserSocketMap
-from src.api.logging.ProgramState import ProgramState
-from src.utils.api import ApiUtils
-from src.database.dao import JobDAO, FileDao
-import uuid
-from src.trmeric_services.agents_v2.actions.file_template import store_template_file, create_template_mapping
+from src.database.dao import FileDao
 from src.utils.types.actions import *
 from src.utils.types.getter import *
 from ..actions import TrucibleActions, WebDataGetter
 from src.database.ai_dao.agent import AIDaoAgentDataGetter
 from src.utils.vectorstore.client import TrmericVectorStoreClient
 from pathlib import Path
-from docx import Document
 from .style import *
 
 
@@ -260,7 +238,6 @@ class DataActions:
                 key_emphasis (str): what to highlight most visually
                 data_personality (str): growth | stability | innovation | challenge | mixed
         """
-        pass
 
 
     def _action_generate_ppt(self, params: dict = {
@@ -385,7 +362,6 @@ class DataActions:
         The planner should only specify INTENT, not structure.
         Do NOT describe slide layouts or design choices in ppt_spec.
         """
-        pass
 
 
     def _action_generate_report_doc(self, params: dict = {
@@ -593,7 +569,6 @@ class DataActions:
             - user request context
 
         """
-        pass
 
       
         
@@ -722,8 +697,8 @@ class DataActions:
                 )
 
             is_jira_on_prem = IntegrationDao.is_user_on_prem_jira(self.user_id)
-            from src.trmeric_services.agents.functions.roadmap_analyst import getIntegrationData
-            from src.trmeric_services.integration.helpers.jira_on_prem_getter import fetch_filtered_integration_data
+            from src.services.agents.functions.roadmap_analyst import getIntegrationData
+            from src.services.integration.helpers.jira_on_prem_getter import fetch_filtered_integration_data
             data = getIntegrationData(
                 integration_name=integration_name,
                 project_ids=project_ids,
@@ -890,7 +865,7 @@ class DataActions:
         This action should be used to fetch basic info of accesible portfolios of user.
         """
         try:
-            from src.trmeric_services.agents import PortfolioApiService
+            from src.services.agents import PortfolioApiService
             portfolio_data = PortfolioApiService().get_portfolio_context_of_user(
                 user_id=self.user_id,
                 tenant_id=self.tenant_id
@@ -1517,7 +1492,6 @@ class DataActions:
         """
             Detail on exact clarification to be asked
         """
-        pass
 
     def fetch_trmeric_info_from_vectorstore(
         self,
@@ -1653,7 +1627,6 @@ class DataActions:
                 This stub exists solely to communicate intent and constraints
                 to the planner.
         """
-        pass
 
     def _emit_research_closure_stub(self, params={}):
         """
@@ -1682,7 +1655,6 @@ class DataActions:
         Actual synthesis and streaming are handled by the SuperAgent.
         This stub exists only to communicate intent to the planner.
         """
-        pass
 
     def _think_aloud_reasoning_stub(self, params=DEFAULT_PARAMS_FOR_THINKING) -> Dict:
         """
@@ -1692,7 +1664,6 @@ class DataActions:
             Resolve interpretive uncertainty about WHAT should be done next and other details.
 
         """
-        pass
 
     @log_function_io_and_time
     def read_file_details_with_s3_key(self, params: Optional[Dict] = DEFAULT_S3_FILE_PARAMS) -> Dict:
@@ -2454,7 +2425,7 @@ class DataActions:
         import uuid
         import tempfile
         import pypandoc
-        from typing import Dict, List
+        from typing import List
 
         print("export_content ", params)
 
@@ -2941,7 +2912,6 @@ class DataActions:
         • Does NOT persist external state
         • Future planning steps inherit frozen status via execution plan continuity
         """
-        pass
 
     def validate_section(self, params: Dict = {"section_id": ""}):
         """
@@ -2953,7 +2923,6 @@ class DataActions:
         A validate section is considered epistemically ready for freezing
         and must not be rewritten or re-analyzed within the same run.
         """
-        pass
 
     def identify_required_sections(self):
         """
@@ -3028,7 +2997,6 @@ class DataActions:
         defined here
         • No new sections may be introduced after this step
         """
-        pass
 
 
 
