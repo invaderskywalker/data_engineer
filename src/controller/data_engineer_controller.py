@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 
 from flask import request, jsonify
 
-from src.api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger, errorLogger
 from src.database.Database import db_instance
 from src.database.dao.data_engineer_dao import (
     DEConnectionDAO,
@@ -88,7 +88,7 @@ class DataEngineerConnectionController:
             return jsonify(connections), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_list_connections", "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_list_connections", "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def get_connection(self, conn_id: str):
@@ -114,7 +114,7 @@ class DataEngineerConnectionController:
             }), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_get_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_get_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def create_connection(self):
@@ -156,16 +156,19 @@ class DataEngineerConnectionController:
                 password_enc=_encrypt(password),
                 ssl=ssl,
             )
+            appLogger.info({"event": "de_connection_created", "conn_id": conn_id, "user_id": user_id, "name": name, "host": host, "database": database})
 
             # Run schema introspection in background (non-blocking)
             def _introspect_bg():
+                appLogger.info({"event": "de_introspect_bg_started", "conn_id": conn_id})
                 try:
                     from src.services.data_engineer.schema_introspection import introspect_schema
                     schema_json = introspect_schema(host, port, database, username, password, ssl)
                     DESchemaSnapshotDAO.upsert(conn_id, schema_json, {"business_terms": {}, "suggested_questions": []})
                     DEConnectionDAO.update_status(conn_id, "active")
+                    appLogger.info({"event": "de_introspect_bg_completed", "conn_id": conn_id, "table_count": len(schema_json.get("tables", []))})
                 except Exception as exc:
-                    appLogger.error({"event": "de_introspect_bg_failed", "conn_id": conn_id, "error": str(exc)})
+                    errorLogger.error({"event": "de_introspect_bg_failed", "conn_id": conn_id, "error": str(exc), "traceback": traceback.format_exc()})
                     DEConnectionDAO.update_status(conn_id, "error")
 
             threading.Thread(target=_introspect_bg, daemon=True).start()
@@ -185,7 +188,7 @@ class DataEngineerConnectionController:
             }), 201
 
         except Exception as e:
-            appLogger.error({"event": "de_create_connection", "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_create_connection", "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def delete_connection(self, conn_id: str):
@@ -196,10 +199,11 @@ class DataEngineerConnectionController:
                 return jsonify({"error": "Connection not found"}), 404
 
             DEConnectionDAO.delete(conn_id, user_id)
+            appLogger.info({"event": "de_connection_deleted", "conn_id": conn_id, "user_id": user_id})
             return "", 204
 
         except Exception as e:
-            appLogger.error({"event": "de_delete_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_delete_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def test_saved_connection(self, conn_id: str):
@@ -218,11 +222,12 @@ class DataEngineerConnectionController:
 
             status = "active" if success else "error"
             DEConnectionDAO.update_status(conn_id, status)
+            appLogger.info({"event": "de_connection_tested", "conn_id": conn_id, "user_id": user_id, "success": success, "status": status})
 
             return jsonify({"success": success, "message": message}), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_test_saved_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_test_saved_connection", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def test_raw_connection(self):
@@ -243,14 +248,14 @@ class DataEngineerConnectionController:
             password = body.get("password", "").strip()
             ssl = bool(body.get("ssl", True))
 
-            if not all([host, database, username, password]):
-                return jsonify({"success": False, "message": "host, database, username, password are required"}), 200
+            # if not all([host, database, username, password]):
+            #     return jsonify({"success": False, "message": "host, database, username, password are required"}), 200
 
             success, message, table_count = _test_conn(host, port, database, username, password, ssl)
             return jsonify({"success": success, "message": message, "table_count": table_count}), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_test_raw_connection", "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_test_raw_connection", "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"success": False, "message": "Internal error during connection test"}), 200
 
     def get_schema(self, conn_id: str):
@@ -281,7 +286,7 @@ class DataEngineerConnectionController:
             }), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_get_schema", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_get_schema", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def refresh_schema(self, conn_id: str):
@@ -300,6 +305,7 @@ class DataEngineerConnectionController:
             DESchemaSnapshotDAO.upsert(conn_id, schema_json, {"business_terms": {}, "suggested_questions": []})
             snapshot = DESchemaSnapshotDAO.get_current(conn_id)
             semantic = snapshot.get("semantic_layer") or {}
+            appLogger.info({"event": "de_schema_refreshed", "conn_id": conn_id, "user_id": user_id, "table_count": len(schema_json.get("tables", []))})
 
             return jsonify({
                 "tables": _strip_sample_rows(schema_json.get("tables", [])),
@@ -308,7 +314,7 @@ class DataEngineerConnectionController:
             }), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_refresh_schema", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_refresh_schema", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -326,7 +332,7 @@ class DataEngineerSessionController:
             return jsonify([_format_session(r) for r in rows]), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_list_sessions", "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_list_sessions", "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def get_session(self, session_id: str):
@@ -342,7 +348,7 @@ class DataEngineerSessionController:
             return jsonify(result), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_get_session", "session_id": session_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_get_session", "session_id": session_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -360,7 +366,7 @@ class DataEngineerRunController:
             return jsonify(_format_run(row)), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_get_run", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_get_run", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def ask(self, conn_id: str):
@@ -386,10 +392,12 @@ class DataEngineerRunController:
             else:
                 title = question[:60]
                 session_id = DESessionDAO.create(user_id, conn_id, title)
+                appLogger.info({"event": "de_session_created", "session_id": session_id, "conn_id": conn_id, "user_id": user_id})
 
             # Create pending run
             run_id = DERunDAO.create(session_id, conn_id, question)
             DESessionDAO.touch(session_id)
+            appLogger.info({"event": "de_run_created", "run_id": run_id, "session_id": session_id, "conn_id": conn_id, "user_id": user_id, "question": question[:120]})
 
             # Kick off agent in background thread
             threading.Thread(
@@ -409,7 +417,7 @@ class DataEngineerRunController:
             }), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_ask", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_ask", "conn_id": conn_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
     def download_sheet(self, run_id: str):
@@ -427,7 +435,7 @@ class DataEngineerRunController:
             return jsonify({"download_url": url, "expires_in": 3600}), 200
 
         except Exception as e:
-            appLogger.error({"event": "de_download_sheet", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
+            errorLogger.error({"event": "de_download_sheet", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
             return jsonify({"error": "Internal Server Error"}), 500
 
 
@@ -443,18 +451,21 @@ def _run_agent(run_id: str, conn_id: str, session_id: str, question: str, conn_r
     This is a stub — plug in your SQL agent in the TODO block below.
     """
     try:
+        appLogger.info({"event": "de_run_started", "run_id": run_id, "session_id": session_id, "conn_id": conn_id, "question": question[:120]})
         DERunDAO.mark_running(run_id)
         _emit_step(run_id, "planning", "Analysing your question and schema…")
 
         # ── Load schema context ──────────────────────────────────────────
         snapshot = DESchemaSnapshotDAO.get_current(conn_id)
         if not snapshot:
+            errorLogger.error({"event": "de_run_no_snapshot", "run_id": run_id, "conn_id": conn_id})
             DERunDAO.fail(run_id, "No schema snapshot found. Please refresh the connection schema first.")
             _emit_step(run_id, "error", "No schema snapshot found.")
             return
 
         schema_json = snapshot["schema_json"]
         semantic_layer = snapshot.get("semantic_layer") or {}
+        appLogger.info({"event": "de_run_schema_loaded", "run_id": run_id, "table_count": len(schema_json.get("tables", []))})
 
         # ── TODO: call SQL agent here ────────────────────────────────────
         # from src.services.data_engineer.sql_agent import run as run_sql_agent
@@ -479,6 +490,7 @@ def _run_agent(run_id: str, conn_id: str, session_id: str, question: str, conn_r
         #     sheet_s3_key=result.get("sheet_s3_key"),
         # )
         # _emit_step(run_id, "done", "Analysis complete")
+        # appLogger.info({"event": "de_run_completed", "run_id": run_id})
         # ── END TODO ─────────────────────────────────────────────────────
 
         # Placeholder until agent is wired in
@@ -486,7 +498,7 @@ def _run_agent(run_id: str, conn_id: str, session_id: str, question: str, conn_r
         _emit_step(run_id, "error", "SQL agent not yet implemented.")
 
     except Exception as e:
-        appLogger.error({"event": "de_run_agent", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
+        errorLogger.error({"event": "de_run_agent_exception", "run_id": run_id, "error": str(e), "traceback": traceback.format_exc()})
         try:
             DERunDAO.fail(run_id, str(e))
             _emit_step(run_id, "error", f"Unexpected error: {e}")

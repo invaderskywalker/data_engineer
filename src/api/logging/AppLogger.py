@@ -2,15 +2,22 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 APPLICATION_LOG_PATH = "logs/application.log"
-
 appHandler = RotatingFileHandler(
     APPLICATION_LOG_PATH, maxBytes=10*1024*1024, backupCount=10)
 appHandler.setFormatter(logging.Formatter(
     "%(asctime)s - %(levelname)s - %(message)s"))
-
 appLogger = logging.getLogger("app_logger")
 appLogger.setLevel(logging.INFO)
 appLogger.addHandler(appHandler)
+
+
+
+ERROR_LOG_PATH = "logs/error.log"
+errorHandler = RotatingFileHandler(ERROR_LOG_PATH, maxBytes=10*1024*1024, backupCount=10)
+errorHandler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+errorLogger = logging.getLogger("app_logger")
+errorLogger.setLevel(logging.INFO)
+errorLogger.addHandler(errorHandler)
 
 
 
