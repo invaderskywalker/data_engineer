@@ -1,8 +1,8 @@
 from flask import Blueprint
-from src.trmeric_api.middleware.AuthandLogMiddleware import AuthAndLogMiddleware
+from src.api.middleware.AuthandLogMiddleware import AuthAndLogMiddleware
 from src.controller.super_agent_controller import SuperAgentController
 from src.controller.super_agent_analytics import SuperAgentAnalyticsController
-from src.trmeric_api.middleware.InternalApisAuth import InternalApisAuth
+from src.api.middleware.InternalApisAuth import InternalApisAuth
 
 
 superAgentAIRoute = Blueprint(

@@ -1,14 +1,14 @@
 from typing import Dict, Optional, List
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 import traceback
 import pandas as pd
 import json
 from datetime import datetime
-from src.trmeric_database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
+from src.database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
 from src.trmeric_services.journal.Activity import  detailed_activity
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
 from src.trmeric_services.project.projectService import ProjectService
 from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
@@ -16,23 +16,23 @@ from src.trmeric_services.agents_v2.schema import SCHEMAS
 from src.trmeric_services.agents_v2.actions.sheet_mapper_v2 import create_mapping
 from src.trmeric_services.agents_v2.actions.text_mapper import create_text_mapping
 from src.trmeric_s3.s3 import S3Service
-from src.trmeric_utils.helper.file_analyser import FileAnalyzer
+from src.utils.helper.file_analyser import FileAnalyzer
 from src.trmeric_s3.s3 import S3Service
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
+from src.utils.helper.decorators import log_function_io_and_time
 
 from src.ws.static import UserSocketMap
-from src.trmeric_api.logging.ProgramState import ProgramState
-from src.trmeric_utils.api import ApiUtils
-from src.trmeric_database.dao import JobDAO
+from src.api.logging.ProgramState import ProgramState
+from src.utils.api import ApiUtils
+from src.database.dao import JobDAO
 import uuid
 from src.trmeric_services.agents_v2.actions.file_template import store_template_file,create_template_mapping
-from src.trmeric_utils.helper.event_bus import event_bus
+from src.utils.helper.event_bus import event_bus
 
-from src.trmeric_utils.helper.common import MyJSON
+from src.utils.helper.common import MyJSON
 
-from src.trmeric_utils.types.actions import *
-from src.trmeric_utils.types.getter import *
+from src.utils.types.actions import *
+from src.utils.types.getter import *
 
 
 class TrucibleActions:

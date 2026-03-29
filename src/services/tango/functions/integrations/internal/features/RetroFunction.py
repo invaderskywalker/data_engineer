@@ -1,7 +1,7 @@
 from src.trmeric_services.tango.functions.Types import TangoFunction
 from src.trmeric_services.tango.functions.integrations.internal.helpers.SQLHandler import SQL_Handler
-from src.trmeric_database.Database import db_instance
-from src.trmeric_database.dao.projects import ProjectsDao
+from src.database.Database import db_instance
+from src.database.dao.projects import ProjectsDao
 
 
 def view_retro_projects( eligibleProjects: list[int], userID: int, tenantID: int, project_id=None):

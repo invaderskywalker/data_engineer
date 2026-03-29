@@ -1,9 +1,9 @@
 import json
 from datetime import datetime, timezone
-from src.trmeric_database.dao.projects import ProjectsDao
-from src.trmeric_database.Database import db_instance
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_database.models.insight import InsightModel, Insights
+from src.database.dao.projects import ProjectsDao
+from src.database.Database import db_instance
+from src.utils.json_parser import extract_json_after_llm
+from src.database.models.insight import InsightModel, Insights
 
 
 

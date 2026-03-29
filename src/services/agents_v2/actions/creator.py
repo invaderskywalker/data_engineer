@@ -3,23 +3,23 @@ from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousC
 from src.trmeric_services.project.projectService import ProjectService
 from src.trmeric_services.journal.Activity import activity_log, detailed_activity
 import traceback
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 import re
 import requests, json
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.trmeric_database.dao import RoadmapDao, TenantDao, TenantDaoV2, CustomerDao, ProjectsDao
+from src.database.dao import RoadmapDao, TenantDao, TenantDaoV2, CustomerDao, ProjectsDao
 from src.trmeric_services.chat_service.utils import roadmapPersona, get_consolidated_persona_context_utils
 from src.trmeric_services.chat_service.Prompts import ideationCanvasPromptTrucible
-from src.trmeric_ml.llm.Types import ModelOptions, ChatCompletion
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.ml.llm.Types import ModelOptions, ChatCompletion
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.utils.json_parser import extract_json_after_llm
 import pandas as pd
 from src.trmeric_services.agents.apis.service_assurance import ServiceAssuranceApis
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.trmeric_services.agents.functions.graphql_v2.analysis.roadmap_inference import infer_roadmap
 from src.trmeric_services.agents.functions.graphql_v2.utils.tenant_helper import is_knowledge_integrated
-from src.trmeric_utils.constants.project_status import PROJECT_STATUS_TYPE_TO_CODE, PROJECT_STATUS_VALUE_TO_CODE
+from src.utils.constants.project_status import PROJECT_STATUS_TYPE_TO_CODE, PROJECT_STATUS_VALUE_TO_CODE
 
 
 
@@ -261,7 +261,7 @@ class Creator:
 
         # Get project mapping for this tenant
         try:
-            from src.trmeric_database.dao import ProjectsDao
+            from src.database.dao import ProjectsDao
             eligible_projects = ProjectsDao.FetchAvailableProject(tenant_id=self.tenant_id, user_id=self.user_id)
             project_mapping = ProjectsDao.fetchProjectIdTitleAndPortfolio(
                 tenant_id=self.tenant_id,
@@ -453,7 +453,7 @@ class Creator:
 
         # 1. Fetch project mapping once
         try:
-            from src.trmeric_database.dao import ProjectsDao
+            from src.database.dao import ProjectsDao
             eligible_projects = ProjectsDao.FetchAvailableProject(
                 tenant_id=self.tenant_id, user_id=self.user_id
             )

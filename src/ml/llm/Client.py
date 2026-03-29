@@ -1,7 +1,7 @@
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_ml.llm.utils.parsing_response import ModelOutputFormat
-from src.trmeric_api.logging.LLMLogger import log_llm_request, log_llm_response
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.ml.llm.utils.parsing_response import ModelOutputFormat
+from src.api.logging.LLMLogger import log_llm_request, log_llm_response
+from src.api.logging.AppLogger import appLogger
 import traceback
 
 class LLMClient:

@@ -1,5 +1,5 @@
 from src.trmeric_services.tango.functions.Types import TangoFunction
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from datetime import datetime
 import json
 import re

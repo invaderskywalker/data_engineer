@@ -1,4 +1,4 @@
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 import traceback
 from datetime import datetime
 import json

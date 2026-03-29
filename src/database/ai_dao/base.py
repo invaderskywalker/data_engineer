@@ -1,4 +1,4 @@
-# src/trmeric_database/ai_dao/base.py
+# src/database/ai_dao/base.py
 from typing import List, Dict, Any, Optional, Tuple, Union
 
 class BaseDAOQueryBuilder:

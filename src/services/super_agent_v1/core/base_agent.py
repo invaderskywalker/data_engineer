@@ -5,12 +5,12 @@ import traceback
 from datetime import datetime
 from typing import Dict, Any, List, Generator
 
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ModelOptions, ChatCompletion, ModelOptions2
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_utils.helper.common import MyJSON
-from src.trmeric_utils.helper.event_bus import Event, event_bus
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ModelOptions, ChatCompletion, ModelOptions2
+from src.utils.json_parser import extract_json_after_llm
+from src.utils.helper.common import MyJSON
+from src.utils.helper.event_bus import Event, event_bus
+from src.api.logging.AppLogger import appLogger, debugLogger
 from src.trmeric_services.super_agent_v1.config import *
 from .func_utils import format_actions_with_docs_and_defaults
 from .actions import DataActions
@@ -19,7 +19,7 @@ from .context_builder import ContextBuilder
 from .steps_sender import SocketStepsSender
 from .rules import *
 from .helper import *
-from src.trmeric_database.Redis import RedClient
+from src.database.Redis import RedClient
 
 import re
 from .const import *
@@ -27,8 +27,8 @@ from .prompt import *
 from .utils import *
 from .node_utils import run_node_script, sanitize_js_strings
 import uuid
-from src.trmeric_database.dao import AgentRunDAO
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
+from src.database.dao import AgentRunDAO
+from src.utils.helper.decorators import log_function_io_and_time
 from src.trmeric_services.agents.functions.graphql_v2.utils.tenant_helper import is_knowledge_integrated
 
 import os

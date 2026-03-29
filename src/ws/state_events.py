@@ -1,8 +1,8 @@
 from flask import request
-from src.trmeric_api.logging.TimingLogger import log_event_start
-from src.trmeric_database.dao import TangoDao
+from src.api.logging.TimingLogger import log_event_start
+from src.database.dao import TangoDao
 from .common import active_connections, agentController
-from src.trmeric_api.logging.ProgramState import ProgramState
+from src.api.logging.ProgramState import ProgramState
 
 def register_state_events(socketio):
     @socketio.on("tango_state_upsert")

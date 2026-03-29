@@ -1,7 +1,7 @@
 import boto3
 import json
-from src.trmeric_ml.llm.Client import LLMClient
-from src.trmeric_ml.llm.Types import ChatCompletion
+from src.ml.llm.Client import LLMClient
+from src.ml.llm.Types import ChatCompletion
 
 
 class Bedrock(LLMClient):

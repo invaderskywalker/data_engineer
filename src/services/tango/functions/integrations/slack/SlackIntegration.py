@@ -1,7 +1,7 @@
 
 from src.trmeric_services.tango.types.TangoIntegrationData import TangoIntegrationData
 from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-from src.trmeric_api.types.TabularData import TabularData
+from src.api.types.TabularData import TabularData
 from requests.auth import HTTPBasicAuth
 from src.trmeric_services.tango.functions.Types import ApiMetadata
 from src.trmeric_integrations.Slack.Api import SlackAPI

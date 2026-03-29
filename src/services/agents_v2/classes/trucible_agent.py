@@ -2,7 +2,7 @@
 
 # src/trmeric_services/agents_v2/classes/trucible_agent.py
 from typing import Generator
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 from ..core import BaseAgent
 
 class TrucibleAgent(BaseAgent):

@@ -4,14 +4,14 @@ import traceback
 import threading
 from openai import OpenAI
 from dotenv import load_dotenv
-from src.trmeric_ml.llm.Client import LLMClient
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
-from src.trmeric_database.dao import TangoDao
-from src.trmeric_api.logging.LLMLogger import log_llm_response
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions,ModelOptions2, MODEL_REGISTRY,OpenAIParamBuilder
-from src.trmeric_ml.llm.utils.reinforcement import _optimize_prompt
-from src.trmeric_ml.llm.utils.parsing_response import ModelOutputFormat
+from src.ml.llm.Client import LLMClient
+from src.api.logging.AppLogger import appLogger, debugLogger
+from src.database.dao import TangoDao
+from src.api.logging.LLMLogger import log_llm_response
+from src.utils.json_parser import extract_json_after_llm
+from src.ml.llm.Types import ChatCompletion, ModelOptions,ModelOptions2, MODEL_REGISTRY,OpenAIParamBuilder
+from src.ml.llm.utils.reinforcement import _optimize_prompt
+from src.ml.llm.utils.parsing_response import ModelOutputFormat
 from src.trmeric_services.reinforcement import core, engine, feedback, policy
 import time
 
@@ -443,7 +443,7 @@ class ChatGPTClient(LLMClient):
             raise e
 
     def memoryUpdatedSystemPrompt(self, system, userid):
-        from src.trmeric_utils.knowledge.TangoMemory import TangoMem
+        from src.utils.knowledge.TangoMemory import TangoMem
 
         tm = TangoMem(userid).get_insights()
         if tm == "No Tango Memory found for this user":

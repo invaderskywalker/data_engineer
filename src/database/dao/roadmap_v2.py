@@ -1,5 +1,5 @@
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
 from typing import List, Dict
 
 

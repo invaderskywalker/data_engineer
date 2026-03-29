@@ -1,6 +1,6 @@
-from src.trmeric_ml.llm.Client import LLMClient
-from src.trmeric_ml.utils.ChunkText import chunkTextForLLM
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
+from src.ml.llm.Client import LLMClient
+from src.ml.utils.ChunkText import chunkTextForLLM
+from src.ml.llm.Types import ChatCompletion, ModelOptions
 
 
 def summarizeChunk(llm: LLMClient, chunk: str, context: str, prev_summaries: str = None, chunk_num: int = 0):

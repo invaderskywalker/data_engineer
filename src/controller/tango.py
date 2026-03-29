@@ -3,19 +3,19 @@ from src.trmeric_services.tango.sessions.SessionManager import TangoSessionManag
 from src.trmeric_services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
 from src.trmeric_services.summarizer.SummarizerService import SummarizerService
 
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_api.logging.CreateLogResponse import createLogResponseBody
+from src.api.logging.AppLogger import appLogger
+from src.api.logging.CreateLogResponse import createLogResponseBody
 from flask import Flask, Response, jsonify, request
-from src.trmeric_api.logging.LogResponseInfo import logResponseInfo
+from src.api.logging.LogResponseInfo import logResponseInfo
 import time
 import datetime
 import threading
 import traceback
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.models.OpenAIClient import ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.models.OpenAIClient import ModelOptions
+from src.utils.json_parser import extract_json_after_llm
 from src.trmeric_services.tango.prompts.CompanyDetails import getCompanyDetailsPrompt
-from src.trmeric_database.dao import TangoDao
+from src.database.dao import TangoDao
 from src.trmeric_services.agents.functions.onbaording_v2 import fetch_uploaded_file
 from src.trmeric_services.journal.ActivityEndpoints import summarize_user_activity
 

@@ -2,9 +2,9 @@ from src.trmeric_services.tango.functions.Types import TangoFunction
 import traceback
 from collections import defaultdict
 from datetime import datetime, timedelta
-from src.trmeric_database.dao import TenantDao
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.Database import db_instance,TrmericDatabase
+from src.database.dao import TenantDao
+from src.api.logging.AppLogger import appLogger
+from src.database.Database import db_instance,TrmericDatabase
 
 
 RETURN_DESCRIPTION = """

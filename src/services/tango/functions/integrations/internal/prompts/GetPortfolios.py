@@ -2,8 +2,8 @@
 from src.trmeric_services.tango.functions.integrations.internal.helpers.SQLHandler import (
     SQL_Handler
 )
-from src.trmeric_database.Database import db_instance
-from src.trmeric_database.dao import PortfolioDao
+from src.database.Database import db_instance
+from src.database.dao import PortfolioDao
 
 
 

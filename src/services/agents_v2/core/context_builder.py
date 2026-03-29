@@ -1,8 +1,8 @@
 import json
 import traceback
 from typing import Dict
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.dao import TenantDaoV2, FileDao, ProviderDao, TenantDao
+from src.api.logging.AppLogger import appLogger
+from src.database.dao import TenantDaoV2, FileDao, ProviderDao, TenantDao
 
 
 class ContextBuilder:

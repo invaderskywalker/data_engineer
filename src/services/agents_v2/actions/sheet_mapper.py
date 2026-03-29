@@ -1,9 +1,9 @@
 import pandas as pd
 import logging
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
+from src.api.logging.AppLogger import appLogger
 
 # Constants
 DEFAULT_MODEL = "gpt-4o"

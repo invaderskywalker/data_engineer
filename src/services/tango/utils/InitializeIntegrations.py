@@ -8,13 +8,13 @@ from src.trmeric_services.tango.functions.integrations.internal.UploadedFiles im
 from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
 from src.trmeric_integrations.jira import DeprecatedJiraAPI
 from src.trmeric_services.tango.functions.integrations.microsoft_ado.MicrosoftAdoIntegration import MicrosoftAdoIntegration
-from src.trmeric_api.types.TabularData import TabularData
+from src.api.types.TabularData import TabularData
 import traceback
 from src.trmeric_services.tango.functions.integrations.slack.SlackIntegration import (
     SlackIntegration)
 
 
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 
 
 IntegrationMap = {

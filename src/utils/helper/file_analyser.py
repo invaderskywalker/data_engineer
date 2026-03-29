@@ -2,9 +2,9 @@ import pandas as pd
 import io
 import traceback
 from typing import Optional, Dict, Tuple
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 from src.trmeric_s3.s3 import S3Service
-from src.trmeric_database.dao import FileDao
+from src.database.dao import FileDao
 
 DEFAULT_S3_FILE_PARAMS = {"files_s3_keys_to_read": []}
 

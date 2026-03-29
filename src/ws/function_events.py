@@ -2,8 +2,8 @@ from flask import request
 import json
 import traceback
 import datetime
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_api.logging.TimingLogger import start_timer, stop_timer, log_event_start
+from src.api.logging.AppLogger import appLogger
+from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
 from src.trmeric_services.agents.functions.spend.spend_roadmap import roadmap_spend_controller
 from src.trmeric_services.agents.prompts.response import response_prompt_of_specific_function
 from .common import active_connections, agentController

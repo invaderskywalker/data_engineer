@@ -3,8 +3,8 @@ from src.trmeric_services.tango.functions.Types import TangoFunction
 from src.trmeric_services.tango.functions.integrations.internal.helpers.SQLHandler import (
     SQL_Handler
 )
-from src.trmeric_database.Database import db_instance
-from src.trmeric_database.dao.portfolios import PortfolioDao
+from src.database.Database import db_instance
+from src.database.dao.portfolios import PortfolioDao
 
 
 def getPortfolioAndProjectsList(tenantID, eligibleProjects):

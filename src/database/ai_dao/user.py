@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional, Union
 from datetime import date
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
 from .base import BaseDAOQueryBuilder
 from .intel import FieldIntel
 

@@ -159,3 +159,9 @@ psql postgres -c "CREATE DATABASE ai_data_engineer OWNER admin;"
 
 **`Missing required DB env vars`**
 → Your `.env` file is missing or `DB_NAME`/`DB_USER`/`DB_PASSWORD` are empty.
+
+
+
+alembic revision --autogenerate -m "your change"
+alembic upgrade head
+

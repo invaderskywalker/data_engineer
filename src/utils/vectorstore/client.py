@@ -1,6 +1,6 @@
 import requests
 from typing import Dict, List, Optional
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 import os
 
 

@@ -1,10 +1,10 @@
-# src/trmeric_database/ai_dao/project.py
+# src/database/ai_dao/project.py
 
 from __future__ import annotations
 
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.dao import ProjectsDao
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
+from src.database.dao import ProjectsDao
 from typing import List, Dict, Any, Optional, Tuple, Union
 from datetime import date
 from .intel import FieldIntel

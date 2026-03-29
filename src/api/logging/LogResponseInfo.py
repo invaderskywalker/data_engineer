@@ -1,4 +1,4 @@
-from src.trmeric_api.logging.RequestLogger import requestLogger
+from src.api.logging.RequestLogger import requestLogger
 
 
 def logResponseInfo(responseInfo):

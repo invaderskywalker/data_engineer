@@ -5,7 +5,7 @@ from docx import Document
 import fitz  
 import pandas as pd  
 from olefile import OleFileIO  
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
 from dotenv import load_dotenv
 from pptx import Presentation  # Add python-pptx for PPTX support
@@ -159,8 +159,8 @@ class S3Service:
         This is a VISUAL INTERPRETATION layer.
         Output is descriptive context, not factual truth.
         """
-        from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-        from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
+        from src.ml.llm.Types import ChatCompletion, ModelOptions
+        from src.ml.llm.models.OpenAIClient import ChatGPTClient
         llm = ChatGPTClient()
         self.log_info = None
         self.modelOptions = ModelOptions(model="gpt-4.1", temperature=0.2, max_tokens=30768)

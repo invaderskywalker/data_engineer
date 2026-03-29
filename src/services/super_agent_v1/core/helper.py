@@ -1,8 +1,8 @@
 
 
-from src.trmeric_database.ai_dao import DAO_REGISTRY
+from src.database.ai_dao import DAO_REGISTRY
 from typing import Dict, Any, List, Generator
-from src.trmeric_utils.helper.common import MyJSON
+from src.utils.helper.common import MyJSON
 
 def build_llm_schema_summary(manifest: Dict[str, Any]) -> Dict[str, Any]:
     """

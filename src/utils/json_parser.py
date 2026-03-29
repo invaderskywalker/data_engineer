@@ -1,6 +1,6 @@
 import json
 import re
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 from collections import OrderedDict
 import traceback
 import numpy as np

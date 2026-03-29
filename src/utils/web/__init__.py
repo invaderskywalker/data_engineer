@@ -1,1 +1,1 @@
-from src.trmeric_utils.web import *
+from src.utils.web import *

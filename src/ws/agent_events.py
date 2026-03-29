@@ -1,11 +1,11 @@
 from flask import request
 import json
 import traceback
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_api.logging.TimingLogger import start_timer, stop_timer, log_event_start
-from src.trmeric_api.logging.ProgramState import ProgramState
+from src.api.logging.AppLogger import appLogger
+from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
+from src.api.logging.ProgramState import ProgramState
 from .common import active_connections, agentController, controller, superAgentController
-from src.trmeric_database.Redis import RedClient
+from src.database.Redis import RedClient
 
 def register_agent_events(socketio):
     @socketio.on("general_agent")

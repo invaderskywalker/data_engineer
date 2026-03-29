@@ -1,21 +1,21 @@
 
 
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
-from src.trmeric_utils.types.getter import *
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.utils.helper.decorators import log_function_io_and_time
+from src.utils.types.getter import *
+from src.api.logging.AppLogger import appLogger, debugLogger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import concurrent.futures
 import traceback
-from src.trmeric_utils.helper.event_bus import Event, event_bus
-from src.trmeric_database.ai_dao import AIDAOInterpreter, AIDAOExecutor
-from src.trmeric_database.dao import TenantDaoV2, TangoDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, AgentRunDAO
+from src.utils.helper.event_bus import Event, event_bus
+from src.database.ai_dao import AIDAOInterpreter, AIDAOExecutor
+from src.database.dao import TenantDaoV2, TangoDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, AgentRunDAO
 from datetime import datetime
 
-from src.trmeric_database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService
+from src.database.presentation_dao import PresentationInterpreter, PresentationExecutor, PresentationExportService, ChartInterpreter, ChartExecutor, ChartExportService
 from functools import wraps
 import inspect
 from src.trmeric_s3.s3 import S3Service
-from src.trmeric_database.ai_dao import DAO_REGISTRY
+from src.database.ai_dao import DAO_REGISTRY
 
 FOLLOW_UP_INSTRUCTION = """
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -540,7 +540,7 @@ class AIDaoAgentDataGetter:
             return eligible_projects
 
         if entity_type == "roadmap":
-            from src.trmeric_database.dao import RoadmapDao
+            from src.database.dao import RoadmapDao
 
             return RoadmapDao.fetchEligibleRoadmapList(
                 tenant_id=self.tenant_id,
@@ -849,7 +849,7 @@ class AIDaoAgentDataGetter:
                 description (str): very detailed explanation of the issue/bug or enhancement
                 priority (str): low | medium | high | critical
         """
-        from src.trmeric_database.dao import BugEnhancementDao
+        from src.database.dao import BugEnhancementDao
 
         return {
             "custom_id": BugEnhancementDao.create_bug_enhancement(
@@ -888,7 +888,7 @@ class AIDaoAgentDataGetter:
             dict:
                 Update confirmation.
         """
-        from src.trmeric_database.dao import BugEnhancementDao
+        from src.database.dao import BugEnhancementDao
 
         internal_id = BugEnhancementDao.get_internal_id_from_custom_id(
             tenant_id=self.tenant_id,

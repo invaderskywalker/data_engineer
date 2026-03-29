@@ -1,7 +1,7 @@
-from src.trmeric_database.Database import db_instance
-from src.trmeric_utils.enums import AuthRoles,ALL_ROLES
+from src.database.Database import db_instance
+from src.utils.enums import AuthRoles,ALL_ROLES
 from .auth import AuthDao
-from src.trmeric_utils.constants.base import PORTFOLIO_ATTRIBUTE_MAP
+from src.utils.constants.base import PORTFOLIO_ATTRIBUTE_MAP
 
 
 class PortfolioDao:

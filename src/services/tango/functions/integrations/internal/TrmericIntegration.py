@@ -1,5 +1,5 @@
-from src.trmeric_api.types.TabularData import TabularData
-from src.trmeric_database.Database import TrmericDatabase
+from src.api.types.TabularData import TabularData
+from src.database.Database import TrmericDatabase
 from src.trmeric_services.tango.functions.integrations.internal.ActionsFunction import VIEW_ACTIONS
 from src.trmeric_services.tango.functions.integrations.internal.GetGeneralProjectsFunction import VIEW_PROJECTS
 from src.trmeric_services.tango.functions.integrations.internal.IdeaPadFunction import VIEW_IDEAS
@@ -15,7 +15,7 @@ from src.trmeric_services.tango.functions.integrations.internal.prompts.Initiali
 from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
 from src.trmeric_services.tango.types.TangoIntegrationData import TangoIntegrationData
 
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from src.trmeric_services.tango.functions.integrations.internal.CompareProjectsFunction import (
     COMPARE_BY_PROJECTS)
 from src.trmeric_services.tango.functions.integrations.internal.OffersFunction import VIEW_OFFERS
@@ -31,8 +31,8 @@ from src.trmeric_services.tango.functions.integrations.internal.providers import
 from src.trmeric_services.tango.functions.integrations.internal.resource import FETCH_CAPACITY_DATA
 from src.trmeric_services.tango.functions.integrations.internal.ProgramsFunction import VIEW_PROGRAMS
 
-from src.trmeric_database.dao.file import FileDao
-from src.trmeric_database.dao import ProjectsDao, TenantDao
+from src.database.dao.file import FileDao
+from src.database.dao import ProjectsDao, TenantDao
 
 class TrmericIntegration(TangoIntegration):
     """

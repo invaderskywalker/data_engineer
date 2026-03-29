@@ -1,14 +1,14 @@
-# src/trmeric_database/presentation_dao/charting.py
+# src/database/presentation_dao/charting.py
 
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_utils.helper.common import MyJSON
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
+from src.utils.helper.common import MyJSON
+from src.utils.helper.decorators import log_function_io_and_time
 import json
 import tempfile
 from typing import Dict, Any
-from src.trmeric_utils.helper.event_bus import Event, event_bus
+from src.utils.helper.event_bus import Event, event_bus
 
 
 class ChartInterpreter:

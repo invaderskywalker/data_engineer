@@ -1,8 +1,8 @@
-# src/trmeric_database/ai_dao/roadmap.py
+# src/database/ai_dao/roadmap.py
 
 from typing import List, Dict, Any, Optional, Union
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
 from datetime import date
 from .base import BaseDAOQueryBuilder
 from .intel import FieldIntel

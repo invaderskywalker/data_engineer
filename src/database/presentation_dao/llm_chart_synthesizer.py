@@ -1,4 +1,4 @@
-# src/trmeric_database/presentation_dao/llm_chart_synthesizer.py
+# src/database/presentation_dao/llm_chart_synthesizer.py
 #
 # LLM Chart Synthesizer — THE JUDGE.
 #
@@ -14,10 +14,10 @@ import json
 import traceback
 from typing import Any, Dict, List, Optional
 
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.api.logging.AppLogger import appLogger
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
 
 
 # ─────────────────────────────────────────────────────────────────────────────

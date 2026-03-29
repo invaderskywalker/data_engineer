@@ -1,7 +1,7 @@
 from src.trmeric_services.tango.functions.Types import TangoFunction
 from src.trmeric_services.tango.functions.integrations.internal.prompts.GetGeneralProjects import  RETURN_DESCRIPTION, view_projects
-from src.trmeric_database.dao import ProviderDao
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import ProviderDao
+from src.api.logging.AppLogger import appLogger
 from collections import defaultdict
 from src.trmeric_services.tango.functions.integrations.internal.providers.quantum_data import get_quantum_data
 

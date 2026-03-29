@@ -1,12 +1,12 @@
 import json
-from src.trmeric_database.Redis import RedClient
+from src.database.Redis import RedClient
 from datetime import datetime, timedelta, timezone
-from src.trmeric_database.Database import db_instance
-from src.trmeric_utils.fuzzySearch import squeeze_text
-from src.trmeric_database.dao import TangoDao, UsersDao
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
+from src.database.Database import db_instance
+from src.utils.fuzzySearch import squeeze_text
+from src.database.dao import TangoDao, UsersDao
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.utils.json_parser import extract_json_after_llm
+from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.trmeric_services.tango.sessions.TangoConversationRetriever import TangoConversationRetriever
 
 INTENT_HINTS = {

@@ -1,5 +1,5 @@
-from src.trmeric_database.dao import db_instance,AuthDao
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import db_instance,AuthDao
+from src.api.logging.AppLogger import appLogger
 import json
 import traceback
 from typing import List, Dict, Optional

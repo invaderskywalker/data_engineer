@@ -1,7 +1,7 @@
 import json
 from collections import defaultdict
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.dao import ProviderDao,QuantumDao
+from src.api.logging.AppLogger import appLogger
+from src.database.dao import ProviderDao,QuantumDao
 from src.trmeric_services.tango.functions.Types import TangoFunction
 
 

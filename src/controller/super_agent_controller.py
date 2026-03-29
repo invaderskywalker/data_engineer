@@ -1,9 +1,9 @@
 from flask import request, jsonify, Response
 import traceback
 
-from src.trmeric_database.dao import AgentRunDAO
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import AgentRunDAO
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
 from src.trmeric_s3.s3 import S3Service
 
 from flask import Response, request, jsonify

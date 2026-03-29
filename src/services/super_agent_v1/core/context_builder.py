@@ -1,10 +1,10 @@
 from typing import Dict
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
-from src.trmeric_utils.helper.common import MyJSON
-from src.trmeric_database.dao import TenantDaoV2, FileDao, ProviderDao, AuthDao, UsersDao, ProjectsDao, RoadmapDao
+from src.utils.helper.common import MyJSON
+from src.database.dao import TenantDaoV2, FileDao, ProviderDao, AuthDao, UsersDao, ProjectsDao, RoadmapDao
 from src.trmeric_services.integration.IntegrationService import IntegrationService
-from src.trmeric_database.Redis import RedClient
+from src.database.Redis import RedClient
 
 
 class ContextBuilder:

@@ -1,5 +1,5 @@
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger, debugLogger
 import traceback
 import json
 from datetime import datetime

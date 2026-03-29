@@ -1,7 +1,7 @@
 
 
 import json
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
 from typing import Dict
 

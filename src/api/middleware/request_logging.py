@@ -1,7 +1,7 @@
 import time
 from flask import request
 import jwt
-from src.trmeric_api.logging.RequestLogger import requestLogger
+from src.api.logging.RequestLogger import requestLogger
 
 
 class RequestLoggingMiddleware:

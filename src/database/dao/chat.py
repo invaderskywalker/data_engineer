@@ -5,7 +5,7 @@ from peewee import (
     DateTimeField,
     SmallIntegerField,
 )
-from src.trmeric_database.models.chat import ChatModel
+from src.database.models.chat import ChatModel
 
 
 class ChatDao:

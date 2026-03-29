@@ -1,4 +1,4 @@
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 
 
 ##this onboarding is not in system now so no use
@@ -67,8 +67,8 @@ class OnboardingDao:
 
 
 
-from src.trmeric_database.Redis import RedClient
-from src.trmeric_database.dao import *
+from src.database.Redis import RedClient
+from src.database.dao import *
 
 class CommonDao:
 

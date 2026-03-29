@@ -1,6 +1,6 @@
 from src.trmeric_services.tango.types.TangoIntegrationData import TangoIntegrationData
 from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
-from src.trmeric_api.types.TabularData import TabularData
+from src.api.types.TabularData import TabularData
 from src.trmeric_services.tango.functions.Types import ApiMetadata, TangoFunction
 from src.trmeric_integrations.MicrosoftAdo.Api import AzureDevOpsAPI
 from src.trmeric_services.tango.functions.integrations.microsoft_ado.GetADOData import GET_ADO_PROJECT_DATA

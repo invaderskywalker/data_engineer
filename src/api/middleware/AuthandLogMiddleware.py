@@ -2,8 +2,8 @@ import time
 import jwt
 from flask import request, Response
 from functools import wraps
-from src.trmeric_api.logging.RequestLogger import requestLogger
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.RequestLogger import requestLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
 
 def _cors_preflight_response():

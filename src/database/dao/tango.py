@@ -5,14 +5,14 @@ from peewee import (
     DateTimeField,
     SmallIntegerField,
 )
-from src.trmeric_database.models.tango import UserCache, Stats, TangoStates, TangoIntegrationSummary
-from src.trmeric_database.Database import db_instance
+from src.database.models.tango import UserCache, Stats, TangoStates, TangoIntegrationSummary
+from src.database.Database import db_instance
 from datetime import datetime, timedelta
 import json
 import traceback
 import re
 import ast
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 import uuid
 
 

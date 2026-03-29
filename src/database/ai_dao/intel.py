@@ -1,7 +1,7 @@
-# src/trmeric_database/ai_dao/intel.py
+# src/database/ai_dao/intel.py
 
 from typing import Dict, Any, Optional, List
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 
 
 class FieldIntel:

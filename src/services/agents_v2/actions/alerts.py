@@ -7,9 +7,9 @@ import sys
 sys.path.append('/home/ubuntu/trmeric-ai') 
 from calendar import monthrange
 from datetime import datetime, timezone, timedelta
-from src.trmeric_utils.api.main import ApiUtils
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
-from src.trmeric_database.dao import ProjectsDaoV2,AuthDao, NotificationDao, InsightDao, JobDAO, RoadmapDao
+from src.utils.api.main import ApiUtils
+from src.api.logging.AppLogger import appLogger, debugLogger
+from src.database.dao import ProjectsDaoV2,AuthDao, NotificationDao, InsightDao, JobDAO, RoadmapDao
 from src.trmeric_services.signals import *
 
 ALL_ROLES = [

@@ -2,7 +2,7 @@
 
 from typing import Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 
 # Constants
 MAX_WORKERS = 4
@@ -60,7 +60,7 @@ class Executor:
 
     def run_data_source(self, source_name: str, params: Dict) -> Dict:
         """Executes a data source function with given parameters."""
-        from src.trmeric_api.logging.AppLogger import debugLogger
+        from src.api.logging.AppLogger import debugLogger
         debugLogger.info({"function": "run_data_source", "source_name": source_name, "params": params})
         try:
             source = self.data_sources.get(source_name)

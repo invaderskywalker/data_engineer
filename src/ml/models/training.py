@@ -11,8 +11,8 @@ from pathlib import Path
 from datetime import datetime
 import sys
 sys.path.append('/home/ubuntu/trmeric-ai') 
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.dao import ReinforcementDao, TangoDao
+from src.api.logging.AppLogger import appLogger
+from src.database.dao import ReinforcementDao, TangoDao
 
 # ========================================
 # CONFIG

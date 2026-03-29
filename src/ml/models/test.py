@@ -2,10 +2,10 @@
 import sys
 sys.path.append('/home/ubuntu/trmeric-ai')
 
-from src.trmeric_ml.models.xgbooster import XGBoostManager
+from src.ml.models.xgbooster import XGBoostManager
 
 # cd /home/ubuntu/trmeric-ai
-# python src/trmeric_ml/models/training.py
+# python src/ml/models/training.py
 
 features = {
     "comment_length": 15,

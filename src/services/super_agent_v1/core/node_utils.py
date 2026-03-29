@@ -2,7 +2,7 @@
 
 import os
 import json
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 import subprocess
 import tempfile
 import os

@@ -1,10 +1,10 @@
 
 # from .classes import ALL_AGENTS_V2
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
-from src.trmeric_database.dao import TangoDao
+from src.api.logging.AppLogger import appLogger, debugLogger
+from src.database.dao import TangoDao
 from src.trmeric_services.phoenix.prompts import ChatTitlePrompt
 from .config import CONFIG_MAP
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.utils.json_parser import extract_json_after_llm
 import threading
 import traceback
 from .core import BaseAgent

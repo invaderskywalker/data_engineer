@@ -1,6 +1,6 @@
-# src.trmeric_database.dao.JobDao.py
+# src.database.dao.JobDao.py
 from datetime import datetime, timedelta, date
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 import json
 
 class DateEncoder(json.JSONEncoder):
@@ -23,7 +23,7 @@ class JobDAO:
             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id;
         """
-        from src.trmeric_utils.helper.common import MyJSON
+        from src.utils.helper.common import MyJSON
         params = (
             tenant_id,
             user_id,

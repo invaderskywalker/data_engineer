@@ -1,6 +1,6 @@
 from typing import Dict, Generator
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.api.logging.AppLogger import appLogger
 import json
 import re
 import traceback

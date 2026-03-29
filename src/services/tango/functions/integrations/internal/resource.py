@@ -1,10 +1,10 @@
 from src.trmeric_services.tango.functions.Types import TangoFunction
-from src.trmeric_database.dao import TenantDao,UsersDao
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import TenantDao,UsersDao
+from src.api.logging.AppLogger import appLogger
 from collections import defaultdict
 from datetime import datetime, timedelta
 import json
-from src.trmeric_database.Database import db_instance,TrmericDatabase
+from src.database.Database import db_instance,TrmericDatabase
 
 
 RETURN_DESCRIPTION = """

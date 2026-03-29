@@ -1,7 +1,7 @@
 from typing import Dict,List
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_utils.constants.base import AUDIT_LOG_MAP
-from src.trmeric_database.Database import db_instance,TrmericDatabase
+from src.api.logging.AppLogger import appLogger
+from src.utils.constants.base import AUDIT_LOG_MAP
+from src.database.Database import db_instance,TrmericDatabase
 
 class TenantDao:
     @staticmethod

@@ -5,12 +5,12 @@ from playhouse.pool import PooledPostgresqlDatabase
 
 import datetime
 import os
-from src.trmeric_api.types.TabularData import TabularData
+from src.api.types.TabularData import TabularData
 from cryptography.hazmat.primitives.ciphers.aead import AESSIV
 import base64
 import ast
 import json
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.AppLogger import appLogger
 from dotenv import load_dotenv
 load_dotenv()
 from typing import List, Dict, Any

@@ -1,4 +1,4 @@
-from src.trmeric_api.types import TabularData
+from src.api.types import TabularData
 
 
 class TangoIntegrationData:

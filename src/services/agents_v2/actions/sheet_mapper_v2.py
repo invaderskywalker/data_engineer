@@ -1,16 +1,16 @@
 import pandas as pd
 import logging
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
+from src.api.logging.AppLogger import appLogger, debugLogger
 import json
 import uuid
-from src.trmeric_database.dao import JobDAO
+from src.database.dao import JobDAO
 from ..helper.common import MyJSON
 from .conform_helpers import conform_project_update_data_llm
 from ..schema import SCHEMAS
-from src.trmeric_api.logging.ProgramState import ProgramState
+from src.api.logging.ProgramState import ProgramState
 import traceback
 
 # Helper: recursively convert type objects to strings for JSON serialization

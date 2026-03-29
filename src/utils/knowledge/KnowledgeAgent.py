@@ -1,7 +1,7 @@
 
 
-##### src/trmeric_utils/knowledge/KnwoeldgeAgent.py
-from src.trmeric_database.Database import db_instance
+##### src/utils/knowledge/KnwoeldgeAgent.py
+from src.database.Database import db_instance
 
 class KnowledgeAgent:
     def __init__(self):

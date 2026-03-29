@@ -3,18 +3,18 @@ import traceback
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Thread
-from src.trmeric_api.logging.TimingLogger import start_timer, stop_timer, log_event_start
+from src.api.logging.TimingLogger import start_timer, stop_timer, log_event_start
 from src.trmeric_integrations.IntegrationRetriever import retrieveIntegrations
 from src.trmeric_services.super_agent_v1.core.context_builder import ContextBuilder
 from .common import active_connections, decodeAuthToken
 from .static import UserSocketMap, ActiveUserSocketMap
-from src.trmeric_api.logging.ProgramState import ProgramState
+from src.api.logging.ProgramState import ProgramState
 from src.trmeric_services.journal.ActivityEndpoints import session_summary, tango_session_summary
-from src.trmeric_utils.knowledge.TangoMemory import TangoMem
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
-# from src.trmeric_database.mongo.dao import JobDAO, JobModel
+from src.utils.knowledge.TangoMemory import TangoMem
+from src.api.logging.AppLogger import appLogger, debugLogger
+# from src.database.mongo.dao import JobDAO, JobModel
 from datetime import datetime, timedelta
-from src.trmeric_database.dao import JobDAO, TangoDao, UsersDao
+from src.database.dao import JobDAO, TangoDao, UsersDao
 import time
 import json
 from src.trmeric_services.journal.Vectors.ActivityOnboarding import get_transformation_summary

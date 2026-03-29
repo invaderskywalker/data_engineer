@@ -1,15 +1,15 @@
 # from src.trmeric_integrations.Jira.Api import JiraAPI
 from src.trmeric_services.tango.functions.Types import TangoFunction
 from src.trmeric_services.integration.IntegrationService import IntegrationService
-from src.trmeric_ml.utils.ChunkText import chunkTextForLLM
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
+from src.ml.utils.ChunkText import chunkTextForLLM
+from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.trmeric_services.summarizer.SummarizerService import SummarizerService
-from src.trmeric_database.dao import TangoDao, IntegrationDao
+from src.database.dao import TangoDao, IntegrationDao
 # from openai import OpenAI
 import json
 import os
 import traceback
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from src.trmeric_services.tango.functions.integrations.internal.helpers.SQLHandlerV2 import SQLHandlerV2
 
 

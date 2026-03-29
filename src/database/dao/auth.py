@@ -1,5 +1,5 @@
-from src.trmeric_database.Database import db_instance
-from src.trmeric_utils.enums import AuthRoles
+from src.database.Database import db_instance
+from src.utils.enums import AuthRoles
 
 class AuthDao:
     @staticmethod

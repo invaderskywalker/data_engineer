@@ -4,11 +4,11 @@ import json
 import traceback
 from typing import List, Dict
 from datetime import datetime
-from src.trmeric_database.dao import db_instance
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
-from src.trmeric_utils.fuzzySearch import squeeze_text
+from src.database.dao import db_instance
+from src.utils.json_parser import extract_json_after_llm
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.api.logging.AppLogger import appLogger, debugLogger
+from src.utils.fuzzySearch import squeeze_text
 
 MODEL_OPTS =  ModelOptions(model="gpt-4.1",max_tokens=15000,temperature=0.1)
 

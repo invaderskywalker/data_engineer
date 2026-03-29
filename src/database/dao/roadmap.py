@@ -1,9 +1,9 @@
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_utils.enums import AuthRoles
+from src.database.Database import db_instance
+from src.api.logging.AppLogger import appLogger
+from src.utils.enums import AuthRoles
 from .auth import AuthDao
 from .portfolios import PortfolioDao
-from src.trmeric_utils.constants.base import roadmap_type_mapping,roadmap_state_mapping
+from src.utils.constants.base import roadmap_type_mapping,roadmap_state_mapping
 
 
 class RoadmapDao:

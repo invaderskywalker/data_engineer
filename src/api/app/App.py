@@ -2,9 +2,9 @@ from flask import Flask, request, g
 # from flask_socketio import SocketIO
 # from src.trmeric_services.provider.Routes import providerBP
 from src.routes.idea_pad import ideaBP
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from flask_cors import CORS
-from src.trmeric_api.middleware.request_logging import RequestLoggingMiddleware
+from src.api.middleware.request_logging import RequestLoggingMiddleware
 from src.routes.discovery import discoveryQA
 from src.routes.qna import qnaRoute
 from src.routes.insight import insightRoute
@@ -23,7 +23,7 @@ from src.routes.potential import potentialRoute
 from src.routes.super_agent import superAgentAIRoute
 from src.routes.health import healthRoute
 
-from src.trmeric_utils.socketio_init import SocketInitializer
+from src.utils.socketio_init import SocketInitializer
 
 
 import eventlet

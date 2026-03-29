@@ -1,4 +1,4 @@
-from src.trmeric_ml.llm.Types import ChatCompletion
+from src.ml.llm.Types import ChatCompletion
 
 def onboardProcessPrompt(query: str) -> ChatCompletion:
     prompt= f"""

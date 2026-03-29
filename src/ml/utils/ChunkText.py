@@ -1,4 +1,4 @@
-from src.trmeric_ml.llm.Client import LLMClient
+from src.ml.llm.Client import LLMClient
 
 def chunkTextForLLM(llm: LLMClient, text: str, chunk_size: int):
     

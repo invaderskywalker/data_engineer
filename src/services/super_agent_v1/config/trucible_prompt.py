@@ -1,5 +1,5 @@
 
-from src.trmeric_utils.helper.common import MyJSON
+from src.utils.helper.common import MyJSON
 from src.trmeric_services.agents_v2.schema import SCHEMAS
 
 TRUCIBLE_SYSTEM_PROMPT = """

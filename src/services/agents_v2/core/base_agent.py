@@ -1,15 +1,15 @@
 from typing import Dict, List, Optional, get_origin, get_args
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 from .steps_sender import SocketStepsSender
-from src.trmeric_database.dao import FileDao
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ModelOptions, ChatCompletion
+from src.database.dao import FileDao
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ModelOptions, ChatCompletion
 from .data_getters import DataGetters
 from .actions import DataActions
 from .context_builder import ContextBuilder
 from datetime import datetime
-from src.trmeric_database.dao import TenantDaoV2, TangoDao
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.database.dao import TenantDaoV2, TangoDao
+from src.utils.json_parser import extract_json_after_llm
 from ..helper.common import MyJSON
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import traceback

@@ -2,8 +2,8 @@ import time
 import jwt
 from flask import request
 from functools import wraps
-from src.trmeric_api.logging.RequestLogger import requestLogger
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.api.logging.RequestLogger import requestLogger
+from src.api.logging.AppLogger import appLogger
 import traceback
 
 

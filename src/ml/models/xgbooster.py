@@ -7,8 +7,8 @@ import xgboost as xgb
 # from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Any
-from src.trmeric_database.dao import TangoDao
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import TangoDao
+from src.api.logging.AppLogger import appLogger
 
 
 # print("=== ACTUAL XGBOOST VERSION AT RUNTIME ===")

@@ -1,5 +1,5 @@
 
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from src.trmeric_services.tango.functions.integrations.internal.helpers.SQLHandler import (
     SQL_Handler)
 

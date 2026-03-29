@@ -1,6 +1,6 @@
-from src.trmeric_database.Database import TrmericDatabase
+from src.database.Database import TrmericDatabase
 # from src.trmeric_services.tango.utils.FormatJsonifiedData import formatSQLData
-from src.trmeric_utils.FormatJsonifiedData import formatSQLData
+from src.utils.FormatJsonifiedData import formatSQLData
 
 
 def retrieveUserInformation(

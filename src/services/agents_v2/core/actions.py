@@ -1,15 +1,15 @@
 from typing import Dict, Optional, List
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 import traceback
 import pandas as pd
 import json
 import re
 from datetime import datetime
-from src.trmeric_database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
+from src.database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
 from src.trmeric_services.journal.Activity import activity_log, detailed_activity
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
 from src.trmeric_services.project.projectService import ProjectService
 from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
@@ -26,9 +26,9 @@ from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousC
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from ..helper.decorators import log_function_io_and_time
 from src.ws.static import UserSocketMap
-from src.trmeric_api.logging.ProgramState import ProgramState
-from src.trmeric_utils.api import ApiUtils
-from src.trmeric_database.dao import JobDAO
+from src.api.logging.ProgramState import ProgramState
+from src.utils.api import ApiUtils
+from src.database.dao import JobDAO
 import uuid
 from src.trmeric_services.agents_v2.actions.file_template import store_template_file,create_template_mapping
 

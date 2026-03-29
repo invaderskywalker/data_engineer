@@ -7,14 +7,14 @@ from typing import Dict, Optional, List
 from datetime import datetime, timedelta
 from ..helper.file_analyser import FileAnalyzer
 from ..helper.event_bus import Event, event_bus
-from src.trmeric_database.Database import db_instance
+from src.database.Database import db_instance
 from ..helper.decorators import log_function_io_and_time
 from src.trmeric_services.phoenix.nodes import WebSearchNode
-from src.trmeric_utils.web.CompanyScraper import CompanyInfoScraper
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.utils.web.CompanyScraper import CompanyInfoScraper
+from src.api.logging.AppLogger import appLogger, debugLogger
 from src.trmeric_services.journal.ActivityEndpoints import get_user_session_summaries_by_timeframe
 from src.trmeric_services.integration.helpers.jira_on_prem_getter import fetch_filtered_integration_data
-from src.trmeric_database.dao import TenantDaoV2, TenantDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, CommonDao
+from src.database.dao import TenantDaoV2, TenantDao, ProviderDao, ProjectsDaoV2, ProjectsDao, ActionsDaoV2, IdeaDao, IntegrationDao, CommonDao
 # Placeholder imports for new functions (update these as needed)
 
 from src.trmeric_services.tango.functions.integrations.internal.providers import get_provider_data, get_quantum_data

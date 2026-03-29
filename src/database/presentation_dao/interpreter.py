@@ -1,11 +1,11 @@
-# src/trmeric_database/presentation_dao/interpreter.py
+# src/database/presentation_dao/interpreter.py
 
-from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_utils.helper.common import MyJSON
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
-from src.trmeric_utils.helper.event_bus import Event, event_bus
+from src.ml.llm.models.OpenAIClient import ChatGPTClient
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
+from src.utils.helper.common import MyJSON
+from src.utils.helper.decorators import log_function_io_and_time
+from src.utils.helper.event_bus import Event, event_bus
 
 
 class PresentationInterpreter:

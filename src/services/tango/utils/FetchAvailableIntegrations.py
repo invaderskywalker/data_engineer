@@ -1,6 +1,6 @@
-from src.trmeric_database.models.integration import UserConfig
-from src.trmeric_database.Database import db_instance
-from src.trmeric_api.types.TabularData import TabularData
+from src.database.models.integration import UserConfig
+from src.database.Database import db_instance
+from src.api.types.TabularData import TabularData
 from src.trmeric_integrations.Jira.Api import JiraAPI
 from src.trmeric_integrations.MicrosoftAdo.Api import AzureDevOpsAPI
 

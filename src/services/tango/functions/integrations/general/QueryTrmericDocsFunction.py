@@ -1,5 +1,5 @@
 # from src.trmeric_services.tango.functions.Types import TangoFunction
-# from src.trmeric_ml.embeddings.VectorSearch import TrmericVectorSearch
+# from src.ml.embeddings.VectorSearch import TrmericVectorSearch
 
 
 # def queryTrmericDocs(**kwargs):

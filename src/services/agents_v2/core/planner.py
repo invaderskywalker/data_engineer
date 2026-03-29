@@ -1,8 +1,8 @@
 from typing import Dict
-from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
-from src.trmeric_utils.json_parser import extract_json_after_llm
-from src.trmeric_api.logging.AppLogger import appLogger
-from src.trmeric_database.dao import TenantDao
+from src.ml.llm.Types import ChatCompletion, ModelOptions
+from src.utils.json_parser import extract_json_after_llm
+from src.api.logging.AppLogger import appLogger
+from src.database.dao import TenantDao
 import re
 import traceback
 from datetime import datetime

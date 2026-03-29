@@ -42,4 +42,4 @@ ENV LANG=en_US.UTF-8 \
 
 EXPOSE 8000
 
-CMD ["/app/venv/bin/gunicorn", "--timeout", "120", "-w", "4", "-k", "eventlet", "-b", "0.0.0.0:8000", "--log-level", "debug", "src.trmeric_api.app.App:app"]
+CMD ["/app/venv/bin/gunicorn", "--timeout", "120", "-w", "4", "-k", "eventlet", "-b", "0.0.0.0:8000", "--log-level", "debug", "src.api.app.App:app"]

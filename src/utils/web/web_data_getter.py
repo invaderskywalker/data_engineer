@@ -1,14 +1,14 @@
 
 
-from src.trmeric_utils.helper.decorators import log_function_io_and_time
-from src.trmeric_utils.types.getter import *
-from src.trmeric_utils.web.CompanyScraper import CompanyInfoScraper
+from src.utils.helper.decorators import log_function_io_and_time
+from src.utils.types.getter import *
+from src.utils.web.CompanyScraper import CompanyInfoScraper
 from src.trmeric_services.phoenix.nodes import WebSearchNode
-from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
+from src.api.logging.AppLogger import appLogger, debugLogger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import concurrent.futures
 import traceback
-from src.trmeric_utils.helper.event_bus import Event, event_bus
+from src.utils.helper.event_bus import Event, event_bus
 
 
 

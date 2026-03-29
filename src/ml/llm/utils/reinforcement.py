@@ -1,7 +1,7 @@
 import traceback
-from src.trmeric_api.logging.AppLogger import appLogger
-# from src.trmeric_database.dao import TangoDao, TenantDao
-# from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
+from src.api.logging.AppLogger import appLogger
+# from src.database.dao import TangoDao, TenantDao
+# from src.ml.llm.Types import ChatCompletion, ModelOptions
 from src.trmeric_services.reinforcement import core
 
 TANGO_MEM_FEATURES = ["tango"]
@@ -22,7 +22,7 @@ def _get_tango_mem_insights(user_id:int =None,last_days:int=5):
         return ""
     tangomem_insights = ""
     try:
-        from src.trmeric_utils.knowledge.TangoMemory import TangoMem
+        from src.utils.knowledge.TangoMemory import TangoMem
         tango_mem = TangoMem(user_id).tango_memory_insights_for_rl(last_days=last_days)
         if tango_mem:
             tangomem_insights = f"\nRemember these insights about the user:\n{tango_mem}"

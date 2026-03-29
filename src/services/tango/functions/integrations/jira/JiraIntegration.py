@@ -2,11 +2,11 @@
 from src.trmeric_services.tango.types.TangoIntegrationData import TangoIntegrationData
 from src.trmeric_services.tango.types.TangoIntegration import TangoIntegration
 from src.trmeric_integrations.Jira.Api import JiraAPI
-from src.trmeric_api.types.TabularData import TabularData
+from src.api.types.TabularData import TabularData
 from src.trmeric_services.tango.functions.Types import ApiMetadata
 from src.trmeric_services.tango.functions.integrations.internal.GetIntegrationData import list_jira_projects, get_jira_data
-from src.trmeric_database.dao import TangoDao
-from src.trmeric_api.logging.AppLogger import appLogger
+from src.database.dao import TangoDao
+from src.api.logging.AppLogger import appLogger
 import traceback
 
 

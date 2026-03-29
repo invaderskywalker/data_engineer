@@ -1,6 +1,6 @@
 
-from src.trmeric_database.dao import ProjectsDao, RoadmapDao
-from src.trmeric_utils.fuzzySearch import *
+from src.database.dao import ProjectsDao, RoadmapDao
+from src.utils.fuzzySearch import *
 
 class Anonymizer:
     def __init__(self, tenant_id, user_id):
