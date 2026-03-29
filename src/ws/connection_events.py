@@ -7,7 +7,6 @@ from .common import active_connections, decodeAuthToken
 from .static import UserSocketMap, ActiveUserSocketMap
 from src.api.logging.ProgramState import ProgramState
 from src.api.logging.AppLogger import appLogger, debugLogger
-# from src.database.mongo.dao import JobDAO, JobModel
 from datetime import datetime
 
 

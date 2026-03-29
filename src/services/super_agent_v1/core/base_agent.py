@@ -28,7 +28,6 @@ from .utils import *
 from .node_utils import run_node_script, sanitize_js_strings
 from src.database.dao import AgentRunDAO
 from src.utils.helper.decorators import log_function_io_and_time
-from src.services.agents.functions.graphql_v2.utils.tenant_helper import is_knowledge_integrated
 
 import os
 
@@ -317,7 +316,7 @@ class SuperAgent:
         else:
             permitted = ANALYSIS_ALLOWED_ACTIONS.copy()
 
-        knowledge_graph_available = is_knowledge_integrated(self.tenant_id)
+        knowledge_graph_available = False
         knowledge_graph_available = False # TEMPORARY DISABLE OF TANGO USE OF KNOWLEDGE
         # Knowledge graph functions that require graph integration
         # Consolidated into 2 parameter-driven functions + 3 compound functions

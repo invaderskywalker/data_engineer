@@ -12,10 +12,8 @@ from src.routes.data_engineer import dataEngineerRoute
 from src.utils.socketio_init import SocketInitializer
 
 
-import eventlet
-
-
-eventlet.monkey_patch()
+# import eventlet
+# eventlet.monkey_patch()
 
 def init_routes(app: Flask):
     app.register_blueprint(superAgentAIRoute)
@@ -27,6 +25,7 @@ def init_routes(app: Flask):
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
+    "http://localhost:3000",
     "https://trmeric.com",
     "https://trmeric-live.trmeric.com",
     "https://trmeric-dev.trmeric.com",
