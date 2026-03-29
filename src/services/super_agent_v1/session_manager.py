@@ -5,7 +5,7 @@ from typing import Dict
 from src.trmeric_services.tango.sessions.TangoConversationRetriever import (
     TangoConversationRetriever,
 )
-from src.trmeric_ws.helper import SocketStepsSender
+from src.ws.helper import SocketStepsSender
 from .handler import AgentsHandler
 
 class AgentSessionManager:

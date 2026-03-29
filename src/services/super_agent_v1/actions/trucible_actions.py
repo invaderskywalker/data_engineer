@@ -3,36 +3,39 @@ from src.trmeric_api.logging.AppLogger import appLogger, debugLogger
 import traceback
 import pandas as pd
 import json
-import re
 from datetime import datetime
-from src.trmeric_database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
-from src.trmeric_services.journal.Activity import activity_log, detailed_activity
+from src.trmeric_database.dao import db_instance, TangoDao, RoadmapDao, ProjectsDaoV2, ProviderDao, TenantDaoV2
+from src.trmeric_services.journal.Activity import  detailed_activity
 from src.trmeric_ml.llm.models.OpenAIClient import ChatGPTClient
 from src.trmeric_ml.llm.Types import ChatCompletion, ModelOptions
 from src.trmeric_utils.json_parser import extract_json_after_llm
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateProject import AutomousProjectAgent
 from src.trmeric_services.project.projectService import ProjectService
 from src.trmeric_services.journal.Vectors.ActivityOnboarding import format_transformation_summary_markdown, onboarding_summary
-from ..helper.event_bus import event_bus
-from ..schema import SCHEMAS
-from ..actions.sheet_mapper_v2 import create_mapping
-from ..actions.text_mapper import create_text_mapping
-from ..actions.creator import Creator
+from src.trmeric_services.agents_v2.schema import SCHEMAS
+from src.trmeric_services.agents_v2.actions.sheet_mapper_v2 import create_mapping
+from src.trmeric_services.agents_v2.actions.text_mapper import create_text_mapping
 from src.trmeric_s3.s3 import S3Service
-from ..config.actions import *
-from ..helper.file_analyser import FileAnalyzer
+from src.trmeric_utils.helper.file_analyser import FileAnalyzer
 from src.trmeric_s3.s3 import S3Service
 from src.trmeric_services.agents.functions.onboarding.creation_tools.AutonomousCreateRoadmap import RoadmapAgent
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from ..helper.decorators import log_function_io_and_time
-from src.trmeric_ws.static import UserSocketMap
+from src.trmeric_utils.helper.decorators import log_function_io_and_time
+
+from src.ws.static import UserSocketMap
 from src.trmeric_api.logging.ProgramState import ProgramState
 from src.trmeric_utils.api import ApiUtils
 from src.trmeric_database.dao import JobDAO
 import uuid
 from src.trmeric_services.agents_v2.actions.file_template import store_template_file,create_template_mapping
+from src.trmeric_utils.helper.event_bus import event_bus
 
-class DataActions:
+from src.trmeric_utils.helper.common import MyJSON
+
+from src.trmeric_utils.types.actions import *
+from src.trmeric_utils.types.getter import *
+
+
+class TrucibleActions:
     """
     A utility class to perform insert/update actions on tenant-related tables
     based on processed document data provided by the planning LLM.
@@ -49,9 +52,18 @@ class DataActions:
         self.socketio = socketio
         self.event_bus = event_bus
         self.fn_maps = {
+            "fetch_company": self.fetch_company,
+            "fetch_company_industry": self.fetch_company_industry,
+            "fetch_company_performance": self.fetch_company_performance,
+            "fetch_competitor": self.fetch_competitor,
+            "fetch_enterprise_strategy": self.fetch_enterprise_strategy,
+            "fetch_industry": self.fetch_industry,
+            "fetch_social_media": self.fetch_social_media,
+            
+            
+            
             "store_company_context": self.store_company_context,
             "store_enterprise_strategy": self.store_enterprise_strategy,
-            # "store_industry_context": self.store_industry_context,
             "store_company_industry_mapping": self.store_company_industry_mapping,
             "store_social_media_context": self.store_social_media_context,
             "store_competitor_context": self.store_competitor_context,
@@ -62,18 +74,130 @@ class DataActions:
             "map_excel_columns": self.map_excel_columns,
             "map_text": self.map_text,
             "update_project": self.update_project,
+            "map_from_conversation": self.map_from_conversation,
             
             "set_user_designation": self.set_user_designation,
-            "find_suitable_service_provider": self.find_suitable_service_provider,
-            
-            "create_roadmaps_after_user_satisfaction": self.create_roadmaps,
-            "present_ideas_as_ppt": self.present_ideas_as_ppt,
-            "contact_providers_for_execution": self.contact_providers_for_execution,
-            
-            "generate_onboarding_report": self._generate_onboarding_report,
-            "generate_and_save_template_file": self.generate_template_file,
-            # "generate_report_from_template": self._generate_report_from_template,
         }
+        
+        
+    @log_function_io_and_time
+    def fetch_company(self, params: Optional[Dict] = DEFAULT_COMPANY_PARAMS) -> list:
+        """
+        Fetches company data for a tenant.
+        """
+        self.event_bus.dispatch(
+            'STEP_UPDATE',
+            {'message': "Fetching Company Info"},
+            session_id=self.session_id
+        )
+        return TenantDaoV2.fetch_company(self.tenant_id)
+
+    @log_function_io_and_time
+    def fetch_company_industry(self, params: Optional[Dict] = DEFAULT_COMPANY_INDUSTRY_PARAMS) -> list:
+        """
+        Fetches company-industry mappings for a tenant.
+        """
+        self.event_bus.dispatch(
+            'STEP_UPDATE',
+            {'message': "Fetching Company Industry"},
+            session_id=self.session_id
+        )
+        return TenantDaoV2.fetch_company_industry(self.tenant_id)
+
+    @log_function_io_and_time
+    def fetch_company_performance(self, params: Optional[Dict] = DEFAULT_COMPANY_PERFORMANCE_PARAMS) -> list:
+        """
+        Fetches performance data for a tenant, optionally filtered by period.
+        """
+        try:
+            self.event_bus.dispatch(
+                'STEP_UPDATE',
+                {'message': "Fetching Company Performace"},
+                session_id=self.session_id
+            )
+            period = params.get("period")
+            query = f"""
+                SELECT id, tenant_id, period, revenue, profit, funding_raised, investor_info, citations
+                FROM public.tenant_companyperformance
+                WHERE tenant_id = {self.tenant_id} AND deleted_on IS NULL
+            """
+            if period:
+                query += f" AND period = '{period}'"
+            return db_instance.retrieveSQLQueryOld(query)
+        except Exception as e:
+            appLogger.error(f"[DataGetters.fetch_company_performance] tenant_id={self.tenant_id}, error={e}")
+            return []
+
+    @log_function_io_and_time
+    def fetch_competitor(self, params: Optional[Dict] = DEFAULT_COMPETITOR_PARAMS) -> list:
+        """
+        Fetches competitor data for a tenant, optionally filtered by competitor name.
+        """
+        try:
+            self.event_bus.dispatch(
+                'STEP_UPDATE',
+                {'message': "Fetching Company from context"},
+                session_id=self.session_id
+            )
+            competitor_name = params.get("competitor_name") or None
+            query = f"""
+                SELECT id, tenant_id, name, summary, recent_news, financials, citations
+                FROM public.tenant_competitor
+                WHERE tenant_id = {self.tenant_id} AND deleted_on IS NULL
+            """
+            if competitor_name:
+                query += f" AND name ilike '%{competitor_name}%'"
+            return db_instance.retrieveSQLQueryOld(query)
+        except Exception as e:
+            appLogger.error(f"[DataGetters.fetch_competitor] tenant_id={self.tenant_id}, error={e}")
+            return []
+
+    @log_function_io_and_time
+    def fetch_enterprise_strategy(self, params: Optional[Dict] = DEFAULT_ENTERPRISE_STRATEGY_PARAMS) -> list:
+        """
+        Fetches enterprise strategy and its sections for a tenant, optionally filtered by title.
+        """
+        self.event_bus.dispatch(
+            'STEP_UPDATE',
+            {'message': "Fetching enterprise strategy from context"},
+            session_id=self.session_id
+        )
+        if params is None:
+            params = DEFAULT_ENTERPRISE_STRATEGY_PARAMS.copy()
+            
+        return TenantDaoV2.fetch_enterprise_strategy(tenant_id=self.tenant_id, **params)
+    
+
+    @log_function_io_and_time
+    def fetch_industry(self, params: Optional[Dict] = DEFAULT_INDUSTRY_PARAMS) -> list:
+        """
+        Fetch industry info: you can query by industry ids or particular industry name
+        """
+        self.event_bus.dispatch(
+            'STEP_UPDATE',
+            {'message': "Fetching industry from context"},
+            session_id=self.session_id
+        )
+        industry_ids = params.get("industry_ids", []) or []
+        name = params.get("name") or ""
+        return TenantDaoV2.fetch_industry(industry_ids, name)
+
+    @log_function_io_and_time
+    def fetch_social_media(self, params: Optional[Dict] = DEFAULT_SOCIAL_MEDIA_PARAMS) -> list:
+        try:
+            platform = params.get("platform")
+            query = f"""
+                SELECT id, tenant_id, platform, handle, latest_posts, last_updated
+                FROM public.tenant_socialmedia
+                WHERE tenant_id = {self.tenant_id} AND deleted_on IS NULL
+            """
+            if platform:
+                query += f" AND platform = '{platform}'"
+            return db_instance.retrieveSQLQueryOld(query)
+        except Exception as e:
+            appLogger.error(f"[DataGetters.fetch_social_media] tenant_id={self.tenant_id}, error={e}")
+            return []
+
         
     @log_function_io_and_time
     def store_portfolio_context(
@@ -592,115 +716,6 @@ class DataActions:
                 "results": {}
             }
     
-                
-    # @log_function_io_and_time
-    # def store_industry_context(self, params: Optional[Dict] = DEFAULT_INDUSTRY_CONTEXT_PARAMS) -> Dict:
-    #     """
-    #     Stores industry context in tenant_industry table.
-    #     """
-    #     try:
-    #         params = params.copy()
-    #         name = params.get("name") or ""
-    #         current_time = datetime.now()
-
-    #         if name:
-    #             query = f"""
-    #                 SELECT id FROM public.tenant_industry
-    #                 WHERE name = '{name}' AND deleted_on IS NULL
-    #             """
-    #             existing = db_instance.retrieveSQLQueryOld(query)
-    #         existing = len(existing) > 0
-
-    #         industry_id = None
-    #         if not existing:
-    #             insert_query = """
-    #                 INSERT INTO public.tenant_industry
-    #                 (name, trends, value_chain, function_kpis, created_by_id, updated_by_id, created_on, updated_on)
-    #                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    #                 RETURNING id;
-    #             """
-    #             result = db_instance.executeSQLQuery(
-    #                 insert_query,
-    #                 (
-    #                     params.get("name", ""),
-    #                     json.dumps(params.get("trends", [])),
-    #                     json.dumps(params.get("value_chain", [])),
-    #                     json.dumps(params.get("function_kpis", {})),
-    #                     self.user_id,
-    #                     self.user_id,
-    #                     current_time,
-    #                     current_time
-    #                 ),
-    #                 fetch="one"
-    #             )
-    #             industry_id = result
-
-    #             self.store_company_industry_mapping({
-    #                 "industry_id": industry_id[0], 
-    #                 "citations": params.get("citations")
-    #             })
-    #         return {
-    #             "message": f"Successfully stored industry context for tenant {self.tenant_id}",
-    #             "success": True,
-    #             "industry_id": industry_id
-    #         }
-
-    #     except Exception as e:
-    #         appLogger.error({
-    #             "function": "store_industry_context",
-    #             "error": str(e),
-    #             "traceback": traceback.format_exc(),
-    #             "tenant_id": self.tenant_id
-    #         })
-    #         return {"message": f"Error storing industry context: {str(e)}", "success": False}
-
-    # @log_function_io_and_time
-    # def store_company_industry_mapping(self, params: Optional[Dict] = DEFAULT_COMPANY_INDUSTRY_MAPPING_PARAMS) -> Dict:
-    #     """
-    #     Stores the mapping between a tenant and an industry in tenant_companyindustry table.
-    #     """
-    #     try:
-    #         params = params.copy()
-    #         industry_id = params.get("industry_id")
-    #         citations = params.get("citations")
-            
-    #         if not industry_id:
-    #             return {"message": "Industry ID required to store company-industry mapping", "success": False}
-
-    #         current_time = datetime.now()
-
-    #         query = f"""
-    #             SELECT id FROM public.tenant_companyindustry 
-    #             WHERE tenant_id = {self.tenant_id} AND industry_id = {industry_id} AND deleted_on IS NULL
-    #         """
-    #         existing = db_instance.retrieveSQLQueryOld(query)
-    #         existing = len(existing) > 0
-            
-    #         if not existing:
-    #             insert_query = """
-    #                 INSERT INTO public.tenant_companyindustry
-    #                 (tenant_id, industry_id, citations, created_by_id, updated_by_id, created_on, updated_on)
-    #                 VALUES (%s, %s, %s, %s, %s, %s, %s);
-    #             """
-    #             db_instance.executeSQLQuery(
-    #                 insert_query,
-    #                 (self.tenant_id, industry_id, json.dumps(citations) if citations else None, self.user_id, self.user_id, current_time, current_time)
-    #             )
-
-    #         return {
-    #             "message": f"Successfully stored company-industry mapping for tenant {self.tenant_id} and industry {industry_id}",
-    #             "success": True
-    #         }
-
-    #     except Exception as e:
-    #         appLogger.error({
-    #             "function": "store_company_industry_mapping",
-    #             "error": str(e),
-    #             "traceback": traceback.format_exc(),
-    #             "tenant_id": self.tenant_id
-    #         })
-    #         return {"message": f"Error storing company-industry mapping: {str(e)}", "success": False}
-
     @log_function_io_and_time
     def store_social_media_context(self, params: Optional[List[Dict]] = [DEFAULT_SOCIAL_MEDIA_CONTEXT_PARAMS]) -> Dict:
         """
@@ -1275,627 +1290,6 @@ class DataActions:
             })
             return f"Error occured while setting designation: {e} "
     
-    @log_function_io_and_time
-    def find_suitable_service_provider(self, params: Optional[Dict] = DEFAULT_FIND_SUITABLE_PROVIDER_PARAMS):
-        """
-            Find the top 3 service providers from trmeric ecosystem
-            for a roadmap or project or any idea description.
-            
-            Example:
-                if user wants to find suitable provider for a roadmap or project
-                set tag to roadmap or project respectively and 
-                pass the roadmap id and project id respectively
-                
-                but if user wants to find suitable provider from trmeric ecosystem
-                set tag to idea and describe the idea in the idea_description
-        """
-        try:
-            roadmap_id = params.get("roadmap_id")
-            project_id = params.get("project_id")
-            tag = (params.get("tag") or "roadmap").lower()
-            idea_description = params.get("idea_description")
-
-            if not tag:
-                raise ValueError("Unable to determine what user desires to find providers for")
-
-            # Fetch roadmap or project details based on tag
-            if tag == "roadmap" and roadmap_id:
-                roadmap_data = RoadmapDao.fetchRoadmapDetails(roadmap_id=roadmap_id)
-                context = roadmap_data[0]
-            elif tag == "project" and project_id:
-                project_data = ProjectsDaoV2.fetchProjectsDataWithProjectionAttrs(
-                    project_ids=[project_id],
-                    projection_attrs=["id", "title", "description", "objectives", "key_results"]
-                )
-                context = project_data[0]
-            else:
-                context = idea_description
-
-            # Fetch all provider skills
-            all_skills_of_providers = ProviderDao.fetchAllDataFromServiceProviderDetailsTable()
-            providers_data = [
-                {
-                    "service_provider_id": provider.get("service_provider_id"),
-                    "primary_skills": (provider.get("primary_skills") or "").lower(),
-                    "secondary_skills": (provider.get("secondary_skills") or "").lower(),
-                    "other_skills": (provider.get("other_skills") or "").lower()
-                }
-                for provider in all_skills_of_providers
-            ]
-
-            # Check for exact skill matches
-            selected_provider_ids = []
-            model_options = ModelOptions(
-                model="gpt-4.1",
-                max_tokens=15000,
-                temperature=0.1
-            )
-            
-
-            
-            prompt = f"""
-                You are an expert in matching service providers to roadmap requirements based on their skills.
-                The roadmap requires expertise in the following context:
-                - {context}
-
-                Below is a list of service providers with their skills:
-                {json.dumps(providers_data, indent=2)}
-
-                Analyze the roadmap context and compare it with each provider's primary_skills, 
-                secondary_skills, and other_skills. Consider partial matches, synonyms, or related skills 
-                (e.g., 'Python' might relate to 'Django' or 'data science').
-
-                Return a JSON object with a list of up to 3 service provider IDs that are the best match, 
-                along with a brief justification for each:
-                ```json
-                {{
-                    "recommended_providers": [
-                        {{
-                            "service_provider_id": "provider_id",
-                            "justification": "Reason why this provider is a good match"
-                        }}
-                    ]
-                }}
-                ```
-            """
-            
-            chat_completion = ChatCompletion(system="", prev=[], user=prompt)
-            # print("find suitable provider prompt ", chat_completion.formatAsString())
-            output = self.llm.run(chat_completion, model_options, function_name="find_best_provider", logInDb={"tenant_id": self.tenant_id, "user_id": self.user_id})
-            print("find suitable provider prompt output ", output)
-            response_json = extract_json_after_llm(output)
-            selected_provider_ids = [p["service_provider_id"] for p in response_json.get("recommended_providers", [])]
-
-            # Fetch detailed provider info and generate summary
-            if selected_provider_ids:
-                provider_info = ProviderDao.fetchDataForRecomendation(service_provider_ids=selected_provider_ids)
-                provider_summary = ProviderDao.createProviderSummary(provider_info)
-            else:
-                provider_summary = "No suitable providers found."
-
-            # Generate final ranking with LLM
-            prompt = f"""
-                You are an expert in ranking service providers for a roadmap.
-                Roadmap Context:
-                - {context}
-
-                Provider Details:
-                {json.dumps(provider_summary, indent=2)}
-
-                Rank up to 3 providers based on their relevance to the roadmap context.
-                Return a JSON object with the ranked providers:
-                ```json
-                {{
-                    "ranks": [
-                        {{
-                            "rank": 1,
-                            "service_provider_id": "service_provider_id",
-                            "justification": "Reason for ranking"
-                        }},...
-                    ]
-                }}
-                ```
-            """
-            chat_completion = ChatCompletion(system="", prev=[], user=prompt)
-            output = self.llm.run(chat_completion, model_options, function_name="rank_providers", logInDb={"tenant_id": self.tenant_id, "user_id": self.user_id})
-            response_json = extract_json_after_llm(output)
-            print("find suitable provider prompt ranking output ", output)
-
-            # Format result for action_results
-            result = [
-                {
-                    "rank": int(item["rank"]),
-                    "service_provider_id": item["service_provider_id"],
-                    "justification": item["justification"]
-                }
-                for item in response_json.get("ranks", [])
-            ]
-            return json.dumps({"status": "success", "recommended_providers": result}, indent=2)
-
-        except Exception as e:
-            appLogger.error({
-                "event": "find_best_provider_err",
-                "function": "find_best_provider",
-                "error": str(e),
-                "traceback": traceback.format_exc()
-            })
-            return f"Error finding providers: {str(e)}"
-
-    @log_function_io_and_time
-    def create_roadmaps(self, params: Optional[Dict] = DEFAULT_PARAMS_FOR_ROADMAPS_CREATION):
-        """
-            Automatically creates one or more roadmaps from natural language descriptions.
-            Args:
-                params (dict, optional): Parameters for roadmap creation. 
-                    Expected keys:
-                        - description_of_roadmaps_for_creation (list[str]): 
-                        List of text descriptions for new roadmaps. Each entry 
-                        should describe the purpose, scope, or goals of one roadmap.
-                        
-                        - user_satisfied_with_roadmap_plans:
-                        only to assign true after user is happy with the roadmap plan
-            Behavior:
-                - Iterates over the provided roadmap descriptions.
-                - Calls `RoadmapAgent().create_roadmap_from_text_input` for each description.
-                - Executes roadmap creation in parallel using threads for efficiency.
-                - Logs errors and returns either results or error details.
-        """
-        print("taking action create roadmap ---> ", params)
-        description_of_roadmaps_for_creation = params.get("description_of_roadmaps_for_creation") or []
-        
-        def _create_single_roadmap(idea: str):
-            try:
-                return RoadmapAgent().create_roadmap_from_text_input(
-                    tenant_id=self.tenant_id,
-                    user_id=self.user_id,
-                    input_data=idea,
-                    llm=None
-                )
-            except Exception as e:
-                appLogger.error({
-                    "event": "_create_single_roadmap_err",
-                    "function": "_create_single_roadmap",
-                    "idea": idea,
-                    "error": str(e),
-                    "traceback": traceback.format_exc()
-                })
-                return f"Error: {e} occured in creating roadmap for idea: {idea}"
-        
-        try:
-            results = []
-            cr_confirm = TangoDao.fetchTangoStatesForSessionIdAndUserAndKey(user_id=self.user_id, key="create_roadmap_from_agent_confirm", session_id=self.session_id)
-            if len(cr_confirm) < 1:
-                TangoDao.insertTangoState(tenant_id=self.tenant_id, user_id=self.user_id, key="create_roadmap_from_agent_confirm", value="", session_id=self.session_id)
-                return "Hi, the roadmap creation action was triggered but we want to confirm once if the user is happy with the roadmap plans. and the roadmap description that we suggested"
-            
-            TangoDao.deleteTangoStatesForSessionIdAndUserAndKey(user_id=self.user_id, key="create_roadmap_from_agent_confirm", session_id=self.session_id)
-            
-            with ThreadPoolExecutor(max_workers=min(5, len(description_of_roadmaps_for_creation))) as executor:
-                future_to_idea = {executor.submit(_create_single_roadmap, idea): idea for idea in description_of_roadmaps_for_creation}
-                for future in as_completed(future_to_idea):
-                    results.append(future.result())
-            return results
-        except Exception as e:
-            appLogger.error({
-                "event": "create_roadmaps_err",
-                "function": "create_roadmaps",
-                "error": str(e),
-                "traceback": traceback.format_exc()
-            })
-            return f"Error occurred in roadmap creation: {e}"
-
-
-    @log_function_io_and_time
-    def present_ideas_as_ppt(self, params: Optional[Dict] = DEFAULT_PARAMS_FOR_IDEATION_PPT_CREATION) -> Dict:
-        """
-        Generates a PowerPoint presentation structure for ideas using LLM, incorporating company, industry, and strategy context.
-        Supports single idea slides or multiple ideas with optional 2x2 matrix and value chain slides.
-        Slide content is generated by LLM to ensure relevance and impact, stored in TangoDao for frontend rendering.
-
-        Args:
-            params (dict, optional): Parameters for PPT generation.
-                Expected keys:
-                    - content_type (str): 'single_idea' or 'multiple_ideas'.
-                    - ideas (list[dict]): List of ideas with 'title', 'description', 'impact' (optional).
-                    - include_2x2_matrix (bool): Whether to include a 2x2 matrix slide for multiple ideas.
-                    - include_value_chain (bool): Whether to include a value chain slide.
-                    - axis_x_label (str, optional): X-axis label for 2x2 matrix (default: 'Impact').
-                    - axis_y_label (str, optional): Y-axis label for 2x2 matrix (default: 'Time').
-                    - quadrant_labels (list[str], optional): Labels for 2x2 quadrants (default: ['Quick Wins', 'Big Bets', 'Long Term', 'Low Priority']).
-
-        Returns:
-            dict: JSON structure with slide definitions or error details.
-        """
-        try:
-            print("present_ideas_as_ppt ", params)
-            # Default params
-            default_params = {
-                "content_type": "single_idea",
-                "ideas": [],
-                "include_2x2_matrix": False,
-                "include_value_chain": False,
-                "axis_x_label": "Impact",
-                "axis_y_label": "Time",
-                "quadrant_labels": ["Quick Wins", "Big Bets", "Long Term", "Low Priority"],
-            }
-            params = params.copy() if params else {}
-            params = {**default_params, **params}
-            
-            print("present_ideas_as_ppt ", params)
-
-            # Validate inputs
-            content_type = params.get("content_type").lower()
-            ideas = params.get("ideas")
-            include_2x2_matrix = params.get("include_2x2_matrix")
-            include_value_chain = params.get("include_value_chain")
-            axis_x_label = params.get("axis_x_label")
-            axis_y_label = params.get("axis_y_label")
-            quadrant_labels = params.get("quadrant_labels")
-            session_id = self.session_id
-
-            if not ideas:
-                appLogger.info({
-                    "function": "present_ideas_as_ppt",
-                    "message": "No ideas provided for PPT generation",
-                    "tenant_id": self.tenant_id
-                })
-                return {
-                    "error": "No ideas provided for PPT generation",
-                    "needs_clarification": True,
-                    "clarification_question": "Please provide at least one idea with title and description to generate the PPT. 📽️"
-                }
-
-            if content_type not in ["single_idea", "multiple_ideas"]:
-                appLogger.info({
-                    "function": "present_ideas_as_ppt",
-                    "message": f"Invalid content_type: {content_type}",
-                    "tenant_id": self.tenant_id
-                })
-                return {
-                    "error": f"Invalid content type: {content_type}. Supported types: single_idea, multiple_ideas.",
-                    "needs_clarification": True,
-                    "clarification_question": "Please specify if the PPT is for a single idea or multiple ideas. 📽️"
-                }
-
-            # Fetch contextual data
-            company_info = TenantDaoV2.fetch_company(self.tenant_id) or {}
-            industry_info = TenantDaoV2.fetch_company_industry(self.tenant_id) or {}
-            strategies = TenantDaoV2.fetch_enterprise_strategy(tenant_id=self.tenant_id) or []
-            context = {
-                "company_info": company_info,
-                "industry_info": industry_info,
-                "strategies": strategies
-            }
-
-            model_options = ModelOptions(model="gpt-4.1", max_tokens=15000, temperature=0.2)
-            slides = []
-
-            # Common LLM system prompt for slide content generation
-            system_prompt = f"""
-                You are {self.agent_name}, a world-class strategic consultant created by Trmeric.
-                Your task is to generate compelling PowerPoint slide content tailored to the user's company, industry, and strategic goals.
-                Use the following context to ensure relevance and alignment:
-
-                Context:
-                {json.dumps(context, indent=2)}
-
-                Guidelines:
-                - Craft professional, concise, and impactful content for slides.
-                - Align content with the company's goals, industry trends, and strategies.
-                - Use clear, executive-friendly language, avoiding jargon unless relevant.
-                - Include emojis for visual emphasis (e.g., 🚀 for ideas, 📊 for matrices, 🔗 for value chains).
-                - Return content in JSON format with 'type' (e.g., 'title', 'text', 'list', '2x2_matrix') and 'value'.
-                - If data is missing, use placeholders but note limitations transparently.
-            """
-
-            # Single Idea Case
-            if content_type == "single_idea":
-                if len(ideas) > 1:
-                    debugLogger.warning({
-                        "function": "present_ideas_as_ppt",
-                        "message": "Multiple ideas provided for single_idea content_type; using first idea",
-                        "tenant_id": self.tenant_id
-                    })
-                idea = ideas[0]
-                prompt = f"""
-                    {system_prompt}
-
-                    Generate content for a single slide for the following idea:
-                    {json.dumps(idea, indent=2)}
-
-                    The slide should include:
-                    - A title with the idea's name (use 'title' field).
-                    - A description of the idea (use 'description' field).
-                    - Expected impact or benefits (use 'impact' field if provided, else infer from description).
-                    - Content should be engaging, aligned with company and industry context, and formatted for a standard slide layout.
-
-                    Return JSON:
-                    ```json
-                    {{
-                        "title": "Slide Title",
-                        "emoji": "🚀",
-                        "content": [
-                            {{"type": "title", "value": "Idea Title"}},
-                            {{"type": "text", "value": "Description"}},
-                            {{"type": "text", "value": "Expected Impact"}}
-                        ],
-                        "layout": "standard"
-                    }}
-                    ```
-                """
-                chat_completion = ChatCompletion(system=system_prompt, prev=[], user=prompt)
-                output = self.llm.run(chat_completion, model_options, function_name="generate_single_idea_slide", logInDb=self.logInfo)
-                slide_data = extract_json_after_llm(output)
-                if slide_data:
-                    slides.append(slide_data)
-                else:
-                    appLogger.error({
-                        "function": "present_ideas_as_ppt",
-                        "message": "LLM failed to generate single idea slide",
-                        "tenant_id": self.tenant_id
-                    })
-
-
-            # Multiple Ideas Case
-            else:
-                # Value Chain Slide (if requested)
-                if include_value_chain:
-                    prompt = f"""
-                    
-                        Context:
-                        {json.dumps(context, indent=2)}
-
-                        Generate content for a value chain slide that illustrates how the following ideas contribute to the company’s or industry’s value chain:
-                        {json.dumps(ideas, indent=2)}
-
-                        Instructions:
-                        - Create a value chain with 4-5 stages tailored to the company’s industry and strategic goals as provided in the context.
-                        - Map each idea to one or more relevant stages, explaining how it enhances that stage (e.g., improves efficiency, drives innovation, adds customer value).
-                        - For each stage, include:
-                            - Stage Title: 1-2 words, reflecting the stage’s role (e.g., "R&D", "Customer Support").
-                            - Description: Max 30 words, summarizing the stage’s role and how the mapped ideas contribute to it.
-                            - Mapped Ideas: List titles of ideas impacting this stage.
-                        - Competitive Advantage: Max 15 words, describing the market edge gained by executing the ideas in this stage (e.g., lower costs, faster delivery, or superior quality compared to competitors).
-                        - Use a linear or interconnected visual structure suitable for a PowerPoint slide.
-                        - Include an emoji (e.g., 🔗) in the title to emphasize the value chain concept.
-                        - Ensure content is concise, professional, and executive-friendly, with competitive advantages clearly tied to idea execution.
-
-                        Return JSON:
-                        ```json
-                        {{
-                            "title": "Value Chain Impact",
-                            "emoji": "🔗",
-                            "value_chain_stages": [
-                                {{
-                                    "stage_title": "", // 1-2 word
-                                    "description": "", // Max 30 words, include idea’s role
-                                    "mapped_ideas": ["<idea_title>",...], // Titles of ideas impacting this stage
-                                    "competitive_advantage": "", // Max 15 words
-                                }},
-                                ...
-                            ],
-                            "layout": "value_chain"
-                        }}
-                        """
-                    chat_completion = ChatCompletion(system=system_prompt, prev=[], user=prompt)
-                    output = self.llm.run(chat_completion, model_options, function_name="generate_value_chain", logInDb=self.logInfo)
-                    print("v chain", output)
-                    slide_data = extract_json_after_llm(output)
-                    if slide_data:
-                        slides.append(slide_data)
-
-
-                # 2x2 Matrix Slide (if requested)
-                if include_2x2_matrix:
-                    prompt = f"""
-                    
-                        Context:
-                        {json.dumps(context, indent=2)}
-
-                        Generate content for a 2x2 matrix slide positioning the following ideas:
-                        {json.dumps(ideas, indent=2)}
-
-                        Matrix Details:
-                        - X-axis: {axis_x_label} (low to high)
-                        - Y-axis: {axis_y_label} (low to high)
-                        - Quadrants: {quadrant_labels}
-                        
-                        
-                        Instructions:
-                        - Use the provided axes: X-axis ({axis_x_label}, low to high), Y-axis ({axis_y_label}, low to high).
-                        - Optionally suggest alternative axis labels if they better fit the ideas and context (include in output).
-                        - Assign each idea to one of the quadrants ({quadrant_labels}) based on its description, impact, and alignment with company/industry goals.
-                        - For each quadrant, list only idea titles and provide a brief justification (max 15 words) for their placement.
-                        - Ensure content is concise and visually clear for a PowerPoint slide.
-                        - Include an emoji (e.g., 📊) to emphasize the matrix concept.
-
-                        Assign each idea to a quadrant based on its description and impact, considering company and industry context.
-                        Return JSON:
-                        ```json
-                        {{
-                            "x_axis_label": "", // 1-2 words
-                            "y_axis_label": "", // 1-2 words
-                            "quadrants": [
-                                {{
-                                    "quadrant_title": "",// Example - Quick wins
-                                    "x_val": "high/Low",
-                                    "y_val": "high/Low",
-                                    "ideas": ["<titles>", ...]
-                                    
-                                }},...
-                            ], // 4 quadrants
-                            "layout": "2_2_matrix"
-                        }}
-                        ```
-                    """
-                    chat_completion = ChatCompletion(system=system_prompt, prev=[], user=prompt)
-                    output = self.llm.run(chat_completion, model_options, function_name="assign_ideas_to_2x2", logInDb=self.logInfo)
-                    print("2 x 2", output)
-                    slide_data = extract_json_after_llm(output)
-                    if slide_data:
-                        slides.append(slide_data)
-
-
-                
-                # Individual Idea Slides
-                # for idea in ideas:
-                prompt = f"""
-                
-                    Context:
-                    {json.dumps(context, indent=2)}
-
-                    Generate content for multiple ideas - single slide for each idea:
-                    {json.dumps(ideas, indent=2)}
-
-                    Instructions:
-                    - For each idea, create a slide with:
-                        - Title: Use the idea’s 'title' field (max 10 words).
-                        - Description: Summarize the idea’s 'description' field (max 80 words), aligning with company goals and industry trends.
-                        - Impacts: List 2-3 expected benefits (max 15 words each). If 'impact' field is missing, infer from description and context.
-                    - Use bullet points for impacts to ensure slide readability.
-                    - Include an emoji (e.g., 🚀) to emphasize the idea’s potential.
-                    - Ensure content is professional, concise, and executive-friendly.
-                    Return JSON:
-                    ```json
-                    {{
-                        "slides": [
-                            {{
-                                "title": "Slide Title",
-                                "idea_description": "", // 50 words
-                                "impact": [
-                                    {{"emoji": "", "title": "", "value": ""}},
-                                ], // 3
-                                "layout": "standard"
-                            }}
-                        ]
-                    }}
-                    ```
-                """
-                chat_completion = ChatCompletion(system=system_prompt, prev=[], user=prompt)
-                output = self.llm.run(chat_completion, model_options, function_name="generate_idea_slide", logInDb=self.logInfo)
-                print("slides ", output)
-                slide_data = extract_json_after_llm(output)
-                slides_ = slide_data.get("slides") or []
-                if slides_:
-                    slides.extend(slides_)
-                else:
-                    ## log error
-                    pass
-
-            # Store PPT structure in TangoDao
-            ppt_structure = {"slides": slides}
-            TangoDao.insertTangoState(
-                tenant_id=self.tenant_id,
-                user_id=self.user_id,
-                key=f"{self.agent_name}_ppt_structure",
-                value=json.dumps(ppt_structure),
-                session_id=session_id
-            )
-            
-            # with open("slides.json", w) as json_file:
-            with open('slides.json', 'w') as file:
-                json.dump(ppt_structure, file, indent=4)
-             
-            if self.socketio:   
-                client_id = UserSocketMap.get_client_id(self.user_id)
-                self.socketio.emit("streategy_ppt_generated", ppt_structure, room=client_id)
-
-
-
-            return {
-                "status": "success",
-                "message": f"Generated PPT with {len(slides)} slides",
-                "ppt_structure": ppt_structure,
-                "success": True,
-                "key": "tango_ppt_structure"
-            }
-
-        except Exception as e:
-            appLogger.error({
-                "function": "present_ideas_as_ppt",
-                "error": str(e),
-                "traceback": traceback.format_exc(),
-                "tenant_id": self.tenant_id
-            })
-            return {
-                "error": f"Failed to generate PPT: {str(e)}",
-                "needs_clarification": True,
-                "clarification_question": "There was an issue generating the PPT. Please verify the input ideas and try again. 📽️",
-                "next_prompts": [
-                    {"label": "Provide specific idea details for PPT generation"},
-                    {"label": "Clarify if 2x2 matrix or value chain is needed"},
-                    {"label": "Retry PPT generation with updated inputs"}
-                ]
-            }
-                
-    @log_function_io_and_time
-    def contact_providers_for_execution(self, params: Optional[ContactProviderParams] = None) -> str:
-        """
-            contact_providers_for_execution should be invoked when user has 
-            shortlisted providers for their idea/roadmap/project
-            then want to connect to the providers
-            
-            having markdown_mail_body in each email_details is most important
-            and user_satisfied_with_email_contents_and_markdown_mail represents if user is happy with markdown_mail_body for each email details
-            
-            Example::
-            "markdown_mail_body": "<only mail content.. no signature here>",
-            "closing_salutation": "Best regards,",
-            "name_and_designation_string": "<name and position>"
-            
-        """
-        # 🔑 ensure params is always a Pydantic model
-        if isinstance(params, dict):
-            params = ContactProviderParams(**params)
-        elif params is None:
-            params = ContactProviderParams()
-
-        print("hello ... ", params.model_dump())
-        redo = """
-            Hi, the email was not sent to the providers immediately
-            confirm once if the user is happy with the email content(s). 
-        """
-        
-        if not params.user_satisfied_with_email_contents_and_markdown_mail:
-            return redo + " User is not happy"
-        
-
-        # cr_confirm = TangoDao.fetchTangoStatesForSessionIdAndUserAndKey(user_id=self.user_id, key="contact_provider_email_confirm", session_id=self.session_id)
-        # if len(cr_confirm) < 1:
-        #     TangoDao.insertTangoState(tenant_id=self.tenant_id, user_id=self.user_id, key="contact_provider_email_confirm", value="", session_id=self.session_id)
-        #     return redo + ". Confirm Last time"
-        # TangoDao.deleteTangoStatesForSessionIdAndUserAndKey(user_id=self.user_id, key="contact_provider_email_confirm", session_id=self.session_id)
-            
-        # print("trigeering finally --- ", params.dict() )
-        
-        state = ""
-        email_details  = params.email_details
-        for mail_data in email_details:
-            brief_email = mail_data.markdown_mail_body
-            name_and_designation_string = mail_data.name_and_designation_string
-            email_subject = mail_data.email_subject
-            
-            if not brief_email:
-                state += f"markdown_mail_body not present: {mail_data}"
-                continue
-                
-            provider_id = mail_data.provider_id
-            receiver_email = "abhishek@trmeric.com"
-            # receiver_email = ProviderDao.fetch_provider_email(provider_id)
-            res = ApiUtils().send_notification_mail_api(
-                email_content=brief_email,
-                email_data={
-                    "email_content": brief_email,
-                    "name_and_position": name_and_designation_string,
-                    "subject": email_subject
-                }, 
-                receiver_email=receiver_email,
-                template_key='TANGO-CONNECT-PROVIDER'
-            )
-            state += f"{res} - {mail_data}"
-            
-        return state
-
             
     @log_function_io_and_time
     def map_text(self, params: Optional[Dict] = DEFAULT_MAP_DOCS_PARAMS) -> Dict:
@@ -2356,173 +1750,185 @@ class DataActions:
                 'needs_clarification': True,
                 'clarification_question': 'There was an issue scheduling the updates. Please try again.'
             }
-        
-   
+    
+    
+    
     @log_function_io_and_time
-    def _generate_onboarding_report(self, lookback_hours: int = 2160) -> str:
-        """Generate transformation/onboarding analysis report"""
-        try:
-            # with open("onboarding_report.json", "r", encoding="utf-8") as f:
-            #     summary =  json.load(f)
-                
-            self.event_bus.dispatch(
-                'STEP_UPDATE',
-                {'message': "Generating onboarding report"},
-                session_id=self.session_id
-            )
-            # appLogger.info({"function": "_generate_onboarding_report", "tenant_id": self.tenant_id, "user_id": self.user_id, "lookback_hours": lookback_hours})
-            
-            # # Generate the onboarding summary
-            summary = onboarding_summary(self.user_id, self.tenant_id, hours=lookback_hours)
-            print("summary -- ", summary.get("success"))
-            # with open("onboarding_report.json", "w", encoding="utf-8") as f:
-            #     json.dump(summary, f, ensure_ascii=False, indent=4)
-
-            # return summary
-            
-            if summary.get("success", False):
-                # Format as markdown
-                markdown_report = format_transformation_summary_markdown(summary)
-                
-                self.event_bus.dispatch(
-                    'SEND_DIRECT_RESPONSE',
-                    {'message': markdown_report},
-                    session_id=self.session_id
-                )
-                return markdown_report
-            else:
-                error_msg = summary.get("message", "Unable to generate onboarding report")
-                return f"## Onboarding Report\n\nSorry, I couldn't generate your onboarding report: {error_msg}"
-                
-        except Exception as e:
-            appLogger.error({"function": "_generate_onboarding_report_error", "error": str(e), "traceback": traceback.format_exc(), "tenant_id": self.tenant_id})
-            return f"## Onboarding Report\n\nAn error occurred while generating your onboarding report: {str(e)}"
-
-
-
-
-
-
-    @log_function_io_and_time
-    def generate_template_file(self, params: Optional[Dict] = DEFAULT_PARAMS_FOR_TEMPLATE_GENERATION) -> Dict:
+    def map_from_conversation(self, params: Optional[Dict] = DEFAULT_MAP_CONV_PARAMS) -> Dict:
         """
-        This function will be used by user to upload their template files.
-        The agent will extract the template structure in markdown from here.
-        User will provide the category name to be used later for this file template 
+        Maps user-provided typed/conversational text to a schema and schedules creation.
+        No file upload required — works entirely from user_detailed_input.
+        
+        Params:
+            type (str): one of project | roadmap | potential | project_update | idea_creation_schema
+            user_detailed_input (str): the typed text describing the record(s)
+            num_items (int): how many records to extract (default 1)
+            user_satisfied_with_your_provided_mapping (bool): if True, schedules jobs
+            user_wants_more_modifications (bool): if True, returns preview only
         """
         try:
             params = params.copy() if params else {}
-            params = {**DEFAULT_PARAMS_FOR_TEMPLATE_GENERATION, **params}
-            print("--debug generate_template_file params-------",params)
+            file_type = params.get("type", "").lower()
+            user_input = params.get("user_detailed_input", "")
+            num_items = params.get("num_items") or params.get("num_projects") or 1
+            user_satisfied = params.get("user_satisfied_with_your_provided_mapping", False)
+            user_wants_more_modifications = params.get("user_wants_more_modifications", True)
 
-            # mode = params.get("mode", "save_template")
-            s3_keys = params.get("s3_keys") or []
-            template_name = params.get("template_name", "")
-            category = params.get("category", "BRD").upper()
-            changes = params.get("changes", "")
-            user_satisfied = params.get("user_satisfied_with_template", False)
-            wants_modifications = params.get("user_wants_modifications", False)
+            print(f"[MAP_FROM_CONVERSATION] Starting with params:")
+            print(f"  - file_type: {file_type}")
+            print(f"  - num_items: {num_items}")
+            print(f"  - user_input: {user_input[:100]}...")
+            print(f"  - user_satisfied: {user_satisfied}")
+            print(f"  - user_wants_more_modifications: {user_wants_more_modifications}")
 
-            print(f"[GENERATE_TEMPLATE_FILE]  S3 Keys: {s3_keys}, Changes: {len(changes)} chars")
-
-            if not s3_keys:
+            if not user_input:
                 return {
-                    'error': 'No file uploaded for template processing',
+                    'error': 'No input text provided',
                     'needs_clarification': True,
-                    'clarification_question': 'Please upload your template file (DOCX, PDF, MD recommended).'
+                    'clarification_question': 'Please describe the data you want to store.'
                 }
 
-            # Read file content (same as map_text)
-            file_data = self.file_analyzer.analyze_files({"files_s3_keys_to_read": s3_keys})
-            print("\n------debug file_data------------", len(file_data))
-            if not file_data.get('files'):
+            if not file_type or file_type not in list(SCHEMAS.keys()):
                 return {
-                    'error': 'Could not read uploaded template',
+                    'error': f'Invalid or missing type. Supported: {", ".join(SCHEMAS.keys())}',
                     'needs_clarification': True,
-                    'clarification_question': 'Failed to read file. Please try uploading again.'
+                    'clarification_question': f'Please specify a valid type: {", ".join(SCHEMAS.keys())}'
                 }
 
-            file_info = file_data['files'][0]
-            # print("\n---debug file_info----------", file_info)
-            if file_info.get('error'):
-                return {'error': file_info['error'], 'needs_clarification': True}
+            schema_dict = SCHEMAS.get(file_type, {})
+            schema_fields = list(schema_dict.keys())
+            schema_types = {k: v for k, v in schema_dict.items()}
 
-            file_id = file_info.get('file_id',None)
-            content = file_info.get('content', '')
-            filename = file_info['filename']
-            print("---debug start create_template_mapping for file_id: ", file_id, ": ", filename)
-
-            if not content.strip():
-                return {
-                    'error': 'Template is empty or unreadable',
-                    'needs_clarification': True,
-                    'clarification_question': 'Please upload a valid DOCX/PDF/MD file.'
-                }
-
-            result = create_template_mapping(
-                file_content=content,
-                original_filename=filename,
-                s3_key=file_info['file_s3_key'],
-                category=category,
-                template_name=template_name or filename.split('.')[0],
+            context = TangoDao.fetchTangoStatesForUserIdKeyandSession(
                 user_id=self.user_id,
-                tenant_id=self.tenant_id,
-                session_id=self.session_id,
-                llm=self.llm,
+                key=f"{self.agent_name}_planning",
+                session_id=self.session_id
             )
 
-            mode = result.get("mode")
-            message = result.get("message")
-            success  = result.get("success",False)
-            # print("--debug generate_template_file-------- result----", mode,"message: ", message,"\nSatisfied: ", user_satisfied)
-            generated_document = result.get("generated_document")
+            mode = "all" if user_satisfied else "preview"
 
-            if user_satisfied:
-                store_result = store_template_file({
-                    "tenant_id": self.tenant_id,
-                    "user_id": self.user_id,
-                    "category": category,
-                    "file_id": file_id,
-                    "template_structure": generated_document,
-                })
-                print("\n\n--debug store_template_file res------- ", store_result)
-                if store_result:
-                    message = f"✅ Your **{category}** template has been saved successfully!\n\n. I'll use this exact format for all future generations."
-                else:
-                    message += f"\n\n⚠️ Preview ready, but saving failed. Please try again."
+            SYSTEM_PROMPT = f"""
+                You are an expert data extractor. The user has typed a description of one or more {file_type} records.
+                Your job is to extract structured data from their text and map it to the schema fields.
 
-            detailed_activity("trucible_template_processed",f"Template {mode} completed: {filename}",user_id=self.user_id)
+                Schema fields:
+                {MyJSON.dumps(schema_dict, indent=2)}
 
-            response = f"""{message}\n\n{generated_document}"""
-            return response
+                Rules:
+                - Extract exactly num_items records from the input
+                - For each record, map all available information to schema fields
+                - If a field cannot be determined from the input, use "" or []
+                - Do not invent data — only use what the user provided
+                - If critical fields are missing, ask in clarification_question
+
+                Output Format:
+                ```json
+                {{
+                    "thought_process": "",
+                    "clarification_question": "",
+                    "item_mappings": [
+                        {{
+                            "field1": "value1",
+                            "field2": "value2"
+                        }},...
+                    ]
+                }}
+                ```
+            """
+
+            user_prompt = MyJSON.dumps({
+                "user_input": user_input,
+                "num_items": num_items,
+                "file_type": file_type,
+                "schema_fields": schema_fields,
+                "all_planning_context": context
+            })
+
+            model_options = ModelOptions(
+                model="gpt-4.1",
+                temperature=0.1,
+                max_tokens=10000
+            )
+            llm = ChatGPTClient(user_id=self.user_id, tenant_id=self.tenant_id)
+            chat_completion = ChatCompletion(
+                system=SYSTEM_PROMPT,
+                prev=[],
+                user=user_prompt
+            )
+            response = llm.run(
+                chat_completion,
+                model_options,
+                'super::trucible::conv::mapping',
+                logInDb={"tenant_id": self.tenant_id, "user_id": self.user_id}
+            )
+            print(f"[MAP_FROM_CONVERSATION] LLM response: {response[:200]}")
+            mappings = extract_json_after_llm(response)
+
+            if not mappings.get("item_mappings"):
+                return {
+                    'error': 'Could not extract structured data from input',
+                    'needs_clarification': True,
+                    'clarification_question': mappings.get("clarification_question") or
+                        f'Could not identify {file_type} data from your description. Could you provide more detail?'
+                }
+
+            # Store context
+            TangoDao.insertTangoState(
+                tenant_id=self.tenant_id,
+                user_id=self.user_id,
+                key=f"{self.agent_name}_planning",
+                value=json.dumps(mappings.get("item_mappings", [])),
+                session_id=self.session_id
+            )
+
+            scheduling_message = ''
+            if mode == 'all':
+                run_id = f"{file_type}-creation-{self.tenant_id}-{self.user_id}-{uuid.uuid4()}"
+                job_dao = JobDAO
+                job_type = f"create-{file_type}"
+
+                for item in mappings["item_mappings"]:
+                    payload = {
+                        "job_type": job_type,
+                        "run_id": run_id,
+                        "total_count": len(mappings["item_mappings"]),
+                        "data": item,
+                        "extra_data": {},
+                        "original_used_data": item,
+                        "socket_id": ProgramState.get_instance(self.user_id).get("socket_id"),
+                        "filename": "conversation_input",
+                        "creator_source": "trucible",
+                        "mode": "conv"
+                    }
+                    job_dao.create(
+                        tenant_id=self.tenant_id,
+                        user_id=self.user_id,
+                        schedule_id=None,
+                        job_type=job_type,
+                        payload=payload
+                    )
+
+                scheduling_message = f"All items have been scheduled for {file_type} creation"
+
+            return {
+                "item_mappings": mappings.get("item_mappings", []),
+                "clarification_question": mappings.get("clarification_question", ""),
+                "mode": mode,
+                "scheduling_message": scheduling_message,
+                "formatted_results_according_to_mapping": mappings.get("item_mappings", [])[:2]
+            }
 
         except Exception as e:
+            print(f"[MAP_FROM_CONVERSATION] EXCEPTION: {str(e)}")
             appLogger.error({
-                "function": "generate_template_file",
+                "function": "map_from_conversation",
                 "error": str(e),
                 "traceback": traceback.format_exc(),
                 "tenant_id": self.tenant_id
             })
             return {
-                'error': f'Template processing failed: {str(e)}',
+                'error': f'Failed to process conversation mapping: {str(e)}',
                 'needs_clarification': True,
-                'clarification_question': 'Something went wrong. Please try uploading the template again.'
+                'clarification_question': 'Something went wrong processing your input. Could you try again?'
             }
-        
-
-    # def _generate_report_from_template(self,params:None):
-    #     try:
-    #         print("--debug in _generate_report_from_template---------", params)
-    #         pass
-    #     except Exception as e:
-    #         appLogger.error({
-    #             "function": "_generate_report_from_template",
-    #             "error": str(e),
-    #             "traceback": traceback.format_exc(),
-    #             "tenant_id": self.tenant_id
-    #         })
-    #         return {
-    #             'error': f'Template processing failed: {str(e)}',
-    #             'needs_clarification': True,
-    #             'clarification_question': 'Something went wrong. Please try uploading the template again.'
-    #         }
+    

@@ -17,7 +17,7 @@ import re
 from src.trmeric_services.agents.functions.roadmap_analyst.queries import get_recent_queries
 from ..helper.decorators import log_function_io_and_time
 from ..helper.event_bus import Event, event_bus
-from src.trmeric_ws.static import TangoBreakMapUser
+from src.ws.static import TangoBreakMapUser
 from .func_utils import fetch_function_defaults, fetch_function_definitions
 
 from src.trmeric_services.agents.reports.customers.pf.monthly_savings import (

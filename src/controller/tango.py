@@ -23,7 +23,7 @@ from src.trmeric_services.reinforcement.core import ReinforcementLearning
 from src.trmeric_services.agents.functions.businesscase_agent.controller import BusinessTemplateAgent
 from src.trmeric_services.agents.functions.solution_agent.controller import SolutionAgent
 from threading import Lock
-from src.trmeric_ws.static import UserSocketMap
+from src.ws.static import UserSocketMap
 
 
 class TangoController:

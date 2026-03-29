@@ -13,7 +13,7 @@ from src.routes.tango import tangoRoutes
 from src.routes.project import projectRoutesBP
 from src.routes.cron import cronBP
 from src.routes.roadmap import roadmapRoutesBP
-from src.trmeric_ws.events import init_websocket_events
+from src.ws.events import init_websocket_events
 from src.routes.agents import trmericAIRoute
 from src.routes.provider import providerBP
 from src.routes.internal import internalRoutes

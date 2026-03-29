@@ -31,7 +31,7 @@ from src.trmeric_services.agents.functions.graphql_v2.analysis.knowledge_functio
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from src.trmeric_utils.helper.decorators import log_function_io_and_time
-from src.trmeric_ws.static import UserSocketMap
+from src.ws.static import UserSocketMap
 from src.trmeric_api.logging.ProgramState import ProgramState
 from src.trmeric_utils.api import ApiUtils
 from src.trmeric_database.dao import JobDAO, FileDao
