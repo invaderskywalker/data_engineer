@@ -38,6 +38,12 @@ beautifulsoup4
 requests
 ddgs
 
+# Database migrations
+alembic
+
+# Encryption (used in Database.py for field-level deanonymization)
+cryptography
+
 # Utilities
 python-dateutil
 tenacity==8.2.3
