@@ -11,7 +11,6 @@ Handles all /de/* endpoints:
 import traceback
 import threading
 from datetime import datetime, timezone
-
 from flask import request, jsonify
 
 from src.api.logging.AppLogger import appLogger, errorLogger
@@ -28,6 +27,7 @@ from src.services.data_engineer.schema_introspection import (
 )
 from src.s3.s3 import S3Service
 from src.utils.socketio_init import SocketInitializer
+from src.utils.myjson import safe_datetime
 
 
 def _user_id() -> str:
@@ -81,8 +81,8 @@ class DataEngineerConnectionController:
                     "username": _decrypt(row["username"]),
                     "ssl": row["ssl"],
                     "status": row["status"],
-                    "created_at": row["created_at"].isoformat() if row.get("created_at") else None,
-                    "last_connected_at": row["last_connected_at"].isoformat() if row.get("last_connected_at") else None,
+                    "created_at": safe_datetime(row["created_at"]),
+                    "last_connected_at": safe_datetime(row["last_connected_at"]),
                     "table_count": row.get("table_count", 0),
                 })
             return jsonify(connections), 200
@@ -108,8 +108,10 @@ class DataEngineerConnectionController:
                 "username": _decrypt(row["username"]),
                 "ssl": row["ssl"],
                 "status": row["status"],
-                "created_at": row["created_at"].isoformat() if row.get("created_at") else None,
-                "last_connected_at": row["last_connected_at"].isoformat() if row.get("last_connected_at") else None,
+                # "created_at": row["created_at"].isoformat() if row.get("created_at") else None,
+                "created_at": safe_datetime(row.get("created_at")),
+                "last_connected_at": safe_datetime(row.get("last_connected_at")),
+                # "last_connected_at": row["last_connected_at"].isoformat() if row.get("last_connected_at") else None,
                 "table_count": table_count,
             }), 200
 
@@ -137,8 +139,8 @@ class DataEngineerConnectionController:
             password = body.get("password", "").strip()
             ssl = bool(body.get("ssl", True))
 
-            if not all([name, host, database, username, password]):
-                return jsonify({"error": "name, host, database, username, password are required"}), 400
+            # if not all([name, host, database, username, password]):
+            #     return jsonify({"error": "name, host, database, username, password are required"}), 400
 
             # Test connection before saving
             success, message, table_count = _test_conn(host, port, database, username, password, ssl)
@@ -516,8 +518,8 @@ def _format_session(row: dict) -> dict:
         "connection_id": row["connection_id"],
         "connection_name": row.get("connection_name", ""),
         "title": row.get("title") or "",
-        "created_at": row["created_at"].isoformat() if row.get("created_at") else None,
-        "last_active_at": row["last_active_at"].isoformat() if row.get("last_active_at") else None,
+        "created_at": safe_datetime(row.get("created_at")),
+        "last_connected_at": safe_datetime(row.get("last_connected_at")),
         "run_count": row.get("run_count", 0),
     }
 
@@ -541,7 +543,7 @@ def _format_run(row: dict) -> dict:
         "sheet_download_url": sheet_url,
         "status": row["status"],
         "error_message": row.get("error_message"),
-        "created_at": row["created_at"].isoformat() if row.get("created_at") else None,
+        "created_at": safe_datetime(row.get("created_at")),
         "completed_at": row["completed_at"].isoformat() if row.get("completed_at") else None,
     }
 

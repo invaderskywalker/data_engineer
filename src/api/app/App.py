@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask
 # from flask_socketio import SocketIO
 # from src.services.provider.Routes import providerBP
@@ -12,8 +14,7 @@ from src.routes.data_engineer import dataEngineerRoute
 from src.utils.socketio_init import SocketInitializer
 
 
-# import eventlet
-# eventlet.monkey_patch()
+
 
 def init_routes(app: Flask):
     app.register_blueprint(superAgentAIRoute)

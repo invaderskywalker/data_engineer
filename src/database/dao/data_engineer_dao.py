@@ -8,7 +8,7 @@ All writes use db_instance.executeSQLQuery.
 
 import json
 from typing import Optional
-
+from src.utils.myjson import MyJSON
 from src.database.Database import db_instance
 
 
@@ -147,7 +147,7 @@ class DESchemaSnapshotDAO:
             INSERT INTO de_schema_snapshots (connection_id, schema_json, semantic_layer, is_current)
             VALUES (%s, %s, %s, TRUE)
             """,
-            (conn_id, json.dumps(schema_json), json.dumps(semantic_layer)),
+            (conn_id, MyJSON.dumps(schema_json), MyJSON.dumps(semantic_layer)),
         )
 
 
@@ -314,9 +314,9 @@ class DERunDAO:
             """,
             (
                 answer_text,
-                json.dumps(queries_executed),
-                json.dumps(table_data) if table_data is not None else None,
-                json.dumps(chart_spec) if chart_spec is not None else None,
+                MyJSON.dumps(queries_executed),
+                MyJSON.dumps(table_data) if table_data is not None else None,
+                MyJSON.dumps(chart_spec) if chart_spec is not None else None,
                 sheet_s3_key,
                 run_id,
             ),

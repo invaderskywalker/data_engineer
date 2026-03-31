@@ -38,7 +38,7 @@ class AgentsRunner():
         debugLogger.info(f"started agent runner run fn - wuth agent: {agent_name} and {query}")
         # agent = ALL_AGENTS_V2.get(agent_name) or None
         agent = SuperAgent or None
-        config = CONFIG_MAP.get(agent_name) or None
+        config = CONFIG_MAP.get("deep_research") or None
         response = ""
         self.run_id = uuid.uuid4().hex
         if not agent or not config:

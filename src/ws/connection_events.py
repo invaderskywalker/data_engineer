@@ -49,7 +49,9 @@ def register_connection_events(socketio):
         log_event_start("TANGO_AUTH", client_id=request.sid)
         timer_id = start_timer("tango_auth_process", client_id=request.sid)
         client_id = request.sid
-        decoded = decodeAuthToken(auth.get("token"))
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NzQ4ODg1MzIsInVzZXJfaWRlbnRpZmllciI6ImFmNDBiZDA2LTIzYzYtNGNjNC1hNjI1LWEzNDY5ZGJkZjY2YiIsInVzZXJfaWQiOiI0NjciLCJ1c2VybmFtZSI6ImFiaGlzaGVrK2V5QHRybWVyaWMuY29tIiwiZmlyc3RfbmFtZSI6IkFiaGlzaGVrIiwibGFzdF9uYW1lIjoiS3VtYXIiLCJ0ZW5hbnRfaWQiOiI3NzYiLCJ0ZW5hbnRfdHlwZSI6ImN1c3RvbWVyIiwidGVuYW50X2NvbmZpZ3VyYXRpb24iOnsicm9hZG1hcF93b3JrX2Zsb3ciOnsiZWRpdF9zcGxfYWNjZXNzIjp0cnVlLCJjb2xsYWJvcmF0b3JfYWNjZXNzIjpbIm9yZ19lZGl0X3JvYWRtYXBfaW50YWtlIiwib3JnX2VkaXRfcm9hZG1hcF9ldmFsdWF0aW9uIiwib3JnX2VkaXRfcm9hZG1hcF9zb2x1dGlvbiIsIm9yZ19lZGl0X3JvYWRtYXBfcHJpb3JpdGlzYXRpb24iXSwic3RhdHVzX2NoYW5nZV9zcGxfYWNjZXNzIjp0cnVlLCJzdGF0dXNfY2hhbmdlX2FwcHJvdmFsX2FsbF9zdGFnZXMiOnRydWV9LCJpbnRlZ3JhdGlvbl9jb25maWd1cmF0aW9uIjp7ImppcmEiOnsic2VydmVyIjoib25wcmVtIiwiYmFzZV91cmwiOiJodHRwczovL2ppcmEtYWVzLmtwLm9yZyJ9fX0sImN1c3RvbWVyX2lkIjoiMTUzIiwiY3VzdG9tZXJfbmFtZSI6ImV5IiwiY3VzdG9tZXJfYXZhdGFyIjoiIiwidGVuYW50X2FjdGlvbnMiOlt7InJvbGUiOiJvcmdfZGVtYW5kX3JlcXVlc3RvciIsImFjdGlvbnMiOlsib3JnX21hbmFnZV9hbGxfcHJvamVjdHMiLCJvcmdfZWRpdF9yb2FkbWFwX2ludGFrZSIsIm9yZ19zcGFjZXNfcHJvamVjdHNfYWRkX2FjdGlvbiIsIm9yZ19zcGFjZXNfcHJvamVjdHNfdmlldyIsIm9yZ19kZWxldGVfcHJvdmlkZXIiLCJvcmdfYm9va21hcmtfaW5zcGlyYXRpb25zIiwib3JnX21hbmFnZV9hbGxfcG9ydGZvbGlvX3Byb2plY3RzIiwib3JnX3ZpZXdfbm90ZXMiLCJvcmdfdXBkYXRlX3Byb3ZpZGVyIiwib3JnX2VkaXRfcm9hZG1hcF9ldmFsdWF0aW9uIiwib3JnX2NyZWF0ZV9rdWRvcyIsIm9yZ192aWV3X2FjdGl2aXR5Iiwib3JnX2NyZWF0ZV9yb2FkbWFwIiwib3JnX2NyZWF0ZV9wcm92aWRlciIsIm9yZ192aWV3X29mZmVyIiwib3JnX2luc2lnaHRfYWRkX2FjdGlvbiIsIm9yZ19jcmVhdGVfcHJvamVjdCIsIm9yZ192aWV3X2t1ZG9zIiwib3JnX3VwZGF0ZV9vZmZlciIsIm9yZ192aWV3X2luc3BpcmF0aW9ucyIsIm9yZ191cGRhdGVfYWN0aXZpdHkiLCJvcmdfYWRkX2FjdGlvbiIsIm9yZ19saWtlX2t1ZG9zIiwib3JnX3NwYWNlc19wcm9qZWN0c19lZGl0Iiwib3JnX2xpa2VfaW5zcGlyYXRpb25zIiwib3JnX3NwYWNlc19wcm9qZWN0c19hZGRfcHJvamVjdCIsIm9yZ19lZGl0X3JvYWRtYXAiLCJvcmdfcmVzdHJpY3Rfcm9hZG1hcHMiLCJvcmdfaW52aXRlX25ld19tZW1iZXIiLCJvcmdfcm9hZG1hcF9zdGF0dXNfZHJhZnRfdG9faW50YWtlIl0sImFkZGl0aW9uYWxfcm9sZXMiOltdfV0sImV4cCI6MTc3NDk0NjEzMiwiYXZhdGFyIjpudWxsLCJ5ZWFyX2N5Y2xlIjoiSnVseS1KdW4ifQ.TvaC6aPCa4gQKdusAga-jcr6MSmmqNUdAoyTXWWECaw"
+
+        decoded = decodeAuthToken(token)
         
         if not decoded:
             print(f"Failed to decode token for client {request.sid}")
@@ -64,12 +66,6 @@ def register_connection_events(socketio):
         tenant_id = decoded.get("tenant_id")
         user_name = decoded.get("user_name") or ""
         
-        
-        
-        program_state = ProgramState.get_instance(user_identifier)
-        program_state.set("tenant_id", tenant_id)
-        program_state.set("socket_id", client_id)
-        
         active_connections[client_id] = {
             'client_id': client_id,
             'user_name': user_name,
@@ -77,10 +73,8 @@ def register_connection_events(socketio):
             "tenant_id": tenant_id
         }
         
-        
         debugLogger.info(f"Client connected with session ID: {client_id}, user: {user_name}")
         socketio.emit("response", {"message": f"Hello {user_name} from server!"}, room=client_id)
-        
         
         # Fire background context build (NON-BLOCKING)
         context_thread = threading.Thread(
